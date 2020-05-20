@@ -32,3 +32,8 @@ horario.add_group(databases.import_group('B1'))
 # print(f'Cantidad de grupos compatibles: {len(compatible_groups)}')
 
 horario.pretty_print()
+
+teachers = horario.get_teachers()
+
+for subject_code in teachers:
+    print(f'{horario.subjects[subject_code].name} -> {teachers[subject_code]}')

@@ -66,9 +66,6 @@ class Group:
 
                 if "<" not in teacher:
                     teachers.append(teacher.strip())       
-                else:
-                    if not teachers:
-                        teachers.append("Sin profesor")
 
             line_index += 1
 

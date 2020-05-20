@@ -38,7 +38,7 @@ class Subject:
         #Se descubrio que si existe un parametro invalido, la respuesta del
         #servidor sera menor a 60 lineas de HTML
         if len(html) < 60: 
-            log.error_log("Asignatura no detectada")
+            log.error_log(f"Asignatura {self.code} no detectada")
             raise InvalidSubjectCode()
             
         return html
