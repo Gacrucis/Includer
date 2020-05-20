@@ -62,7 +62,7 @@ class Schedule:
         subject_codes = {subject.code for subject in self.subjects.values()}
         group_codes = {group.code for group in self.groups.values()}
 
-        if group.subject not in subject_codes or group.code not in group_codes:
+        if group.subject.code not in subject_codes or group.code not in group_codes:
 
             if logging:
                 log.error_log(f'Grupo {group.code} de {group.subject.name} no encontrado')
@@ -145,7 +145,17 @@ class Schedule:
     def get_alternative_groups(self, subject, allow_full=False):
 
         schedule_copy = copy.deepcopy(self)
-        schedule_copy.remove_group(schedule_copy.g)
+
+        current_group = schedule_copy.groups[subject.code]
+        current_group_code = current_group.code
+
+        schedule_copy.remove_group(current_group, logging=False)
+
+        compatible_groups = schedule_copy.get_compatible_groups(subject, allow_full=allow_full)
+        alternative_groups = [group for group in compatible_groups if group.code != current_group_code]
+        # alternative_groups = compatible_groups
+
+        return alternative_groups
 
 
     def pretty_print(self):

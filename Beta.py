@@ -10,6 +10,7 @@ horario = Schedule()
 
 equations = Subject(20255)
 horario.add_group(equations.import_group('A4'))
+equations.import_all_groups(logging=False)
 
 physics = Subject(22956)
 horario.add_group(physics.import_group('A4A'))
@@ -23,6 +24,7 @@ horario.add_group(automats.import_group('H2'))
 databases = Subject(22959)
 horario.add_group(databases.import_group('B1'))
 
+
 # dif = Subject(22956, logging=False)
 # print(f'Cantidad de grupos disponibles: {len(dif.groups)}')
 
@@ -33,7 +35,12 @@ horario.add_group(databases.import_group('B1'))
 
 horario.pretty_print()
 
-teachers = horario.get_teachers()
+alt = horario.get_alternative_groups(equations, allow_full=True)
+alt_codes = [group.code for group in alt]
 
-for subject_code in teachers:
-    print(f'{horario.subjects[subject_code].name} -> {teachers[subject_code]}')
+print(alt_codes)
+
+# teachers = horario.get_teachers()
+
+# for subject_code in teachers:
+#     print(f'{horario.subjects[subject_code].name} -> {teachers[subject_code]}')
