@@ -48,6 +48,7 @@ class Subject:
         if logging:
             log.course_log(f"Obteniendo grupos de {self.name} . . .")
 
+        imported_groups = {}
         index = 0
 
         for line in self.html_lines:
@@ -73,10 +74,11 @@ class Subject:
                     print() #Deja un espacio para facilitar el logging entre grupos
 
                 self.groups[group_code] = group
+                imported_groups[group_code] = group
 
             index += 1
         
-        return True
+        return imported_groups
         
     
     def import_group(self, group_code, logging=False):
@@ -107,11 +109,11 @@ class Subject:
                 if current_group_code == group_code:
                     group = Group(self,  group_code, group_capacity, group_students, logging=logging)
                     self.groups[group_code] = group
-                    return True
+                    return group
             
             index += 1
         
-        return False
+        return None
     
     def get_group_by_code(self, group_code):
 

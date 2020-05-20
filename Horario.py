@@ -1,7 +1,7 @@
 from Asignatura import *
 import Logger as log
 
-class Horario:
+class Schedule:
 
     def __init__(self):
         
@@ -16,11 +16,14 @@ class Horario:
         self.start_hour = 6
         self.finish_hour = 22
 
-        self.teachers = {}
         self.subjects = {}
         self.groups = {}
     
+    
     def add_group(self, group):
+
+        '''Adds a group to the schedule instance, if the group is not compatible it returns False,
+         otherwise, it returns True'''
 
         log.course_log(f'Agregando grupo {group.code} de {group.subject.name}')
 
@@ -37,17 +40,33 @@ class Horario:
                 temp_days[day][hour] = group                
         
         self.days = temp_days
-        self.teachers[group.subject.code] = []
         self.subjects[group.subject.code] = group.subject.name
-        self.groups[group.subject.code] = group.code
-        
-        for teacher in group.teachers:
-            if teacher != 'Sin profesor':
-                self.teachers[group.subject.code].append(teacher)   
+        self.groups[group.subject.code] = group.code 
 
         return True
+
+
+    def get_teachers(self):
+        
+        '''Returns a dict with subject codes as keys and teacher lists as values 
+        as following: {subject_code : [teacher_1, teacher_2, . . .]}'''
+
+        teachers = {}
+        visited_subjects = {subject_code : False for subject_code in self.subjects}
+
+        for day in self.days:
+
+            for group in self.days[day].values():
+
+                if  group is not None:
+                    teachers[group.subject.code] = group.teachers
+        
+        return teachers
+                    
     
     def check_schedule(self, day, hour):
+
+        '''Returns True if the given day and hour are free'''
 
         day = day.upper()
 
@@ -56,7 +75,11 @@ class Horario:
         
         return True
 
+
     def get_compatible_groups(self, subject):
+
+        '''Returns a list of Group objects which are compatible with the
+        current schedule instance'''
         
         if str(subject).isdigit():
             subject = Subject(subject, logging=False)
@@ -77,31 +100,34 @@ class Horario:
                         break
             
             if is_compatible:
-                compatible_groups.append(group.code)
+                compatible_groups.append(group)
         
         return compatible_groups
 
+
     def pretty_print(self):
+
+        '''Prints a formatted schedule'''
 
         print()
         justify_length = 13
 
         # Lineas separadoras verticales
-        print('-'*3, end='')
+        print('-'*8, end='')
 
         for day in self.days:
             print('-'*justify_length , end='')
         print()
 
         # Dias de la semana
-        print('H'.ljust(3), end='')
+        print('HORA'.center(8), end='')
 
         for day in self.days:
             print('|' + f'{day}'.center(justify_length-2) + '|' , end='')
         print()
 
         # Lineas separadoras verticales
-        print('-'*3, end='')
+        print('-'*8, end='')
 
         for day in self.days:
             print('-'*justify_length , end='')
@@ -110,7 +136,7 @@ class Horario:
         # Horario
         for hour in range(self.start_hour, self.finish_hour):
 
-            print(f'{hour}'.ljust(3), end='')
+            print(f'{hour} - {hour+1}'.center(8), end='')
             for day in self.days:
 
                 hour_content = self.days[day][hour]
@@ -123,11 +149,8 @@ class Horario:
             print()
         
         # Lineas separadoras verticales
-        print('-'*3, end='')
+        print('-'*8, end='')
 
         for day in self.days:
             print('-'*justify_length , end='')
-        print()
-
-        
-        print()
+        print('\n')
