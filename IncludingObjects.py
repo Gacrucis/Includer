@@ -1,6 +1,6 @@
-from Asignatura import *
-import Logger as log
 import copy
+from AcademicObjects import Subject
+from AppUtils import Logger
 
 class Schedule:
 
@@ -27,7 +27,7 @@ class Schedule:
          otherwise, it returns True'''
 
         if logging:
-            log.course_log(f'Agregando grupo {group.code} de {group.subject.name}')
+            Logger.course_log(f'Agregando grupo {group.code} de {group.subject.name}')
 
         temp_days = copy.deepcopy(self.days)
         
@@ -38,7 +38,7 @@ class Schedule:
                 if not self.check_schedule(day, hour):
 
                     if logging:
-                        log.error_log('Grupo no compatible')
+                        Logger.error_log('Grupo no compatible')
                     return False
 
                 temp_days[day][hour] = group                
@@ -56,7 +56,7 @@ class Schedule:
 
         if not group:
             if logging:
-                log.error_log(f'Grupo no valido')
+                Logger.error_log(f'Grupo no valido')
             return False
         
         subject_codes = {subject.code for subject in self.subjects.values()}
@@ -65,11 +65,11 @@ class Schedule:
         if group.subject.code not in subject_codes or group.code not in group_codes:
 
             if logging:
-                log.error_log(f'Grupo {group.code} de {group.subject.name} no encontrado')
+                Logger.error_log(f'Grupo {group.code} de {group.subject.name} no encontrado')
             return False
 
         if logging:
-            log.course_log(f'Removiendo grupo {group.code} de {group.subject.name}')
+            Logger.course_log(f'Removiendo grupo {group.code} de {group.subject.name}')
         
         for day in group.schedule:
 
@@ -111,7 +111,7 @@ class Schedule:
         return True
 
 
-    def get_compatible_groups(self, subject, allow_full=False):
+    def get_compatible_groups(self, subject, allow_full=False, logging=True):
 
         '''Returns a list of Group objects which are compatible with the
         current schedule instance'''
@@ -119,7 +119,8 @@ class Schedule:
         if str(subject).isdigit():
             subject = Subject(subject, logging=False)
 
-        log.course_log(f'Detectando horarios compatibles de {subject.name}')
+        if logging:
+            Logger.course_log(f'Detectando grupos compatibles de {subject.name}')
         compatible_groups = []
 
         for group in subject.groups.values():
@@ -142,16 +143,19 @@ class Schedule:
         
         return compatible_groups
     
-    def get_alternative_groups(self, subject, allow_full=False):
+    def get_alternative_groups(self, subject, allow_full=False, logging=True):
 
         schedule_copy = copy.deepcopy(self)
 
         current_group = schedule_copy.groups[subject.code]
         current_group_code = current_group.code
 
+        if logging:
+            Logger.course_log(f'Detectando grupos que pueden reemplazar al {current_group_code} de {subject.name}')
+
         schedule_copy.remove_group(current_group, logging=False)
 
-        compatible_groups = schedule_copy.get_compatible_groups(subject, allow_full=allow_full)
+        compatible_groups = schedule_copy.get_compatible_groups(subject, allow_full=allow_full, logging=False)
         alternative_groups = [group for group in compatible_groups if group.code != current_group_code]
         # alternative_groups = compatible_groups
 

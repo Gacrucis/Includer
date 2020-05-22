@@ -1,0 +1,2 @@
+class InvalidSubjectCode(Exception):
+    pass
