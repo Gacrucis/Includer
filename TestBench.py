@@ -1,6 +1,9 @@
 from AcademicObjects import Subject, Group
 from IncludingObjects import Schedule
 from AppUtils import Logger
+import time
+import os
+import asyncio
 
 # codigos = [22956,22957,22958,22959]
 codigos = [20255,22957,22958,22959]
@@ -9,11 +12,12 @@ codigos = [20255,22957,22958,22959]
 horario = Schedule()
 
 equations = Subject(20255)
+
 horario.add_group(equations.import_group('A4'))
 
 physics = Subject(22956)
 horario.add_group(physics.import_group('A4A'))
-physics.pretty_import_all_groups()
+# physics.pretty_import_all_groups()
 # physics.import_all_groups(logging=False)
 
 electricity = Subject(22957)
@@ -48,6 +52,7 @@ alt_teachers = list(alt_teachers)
 
 print(alt_codes)
 print(alt_teachers)
+
 
 # teachers = horario.get_teachers()
 

@@ -1,6 +1,9 @@
+import os
 import sys
 import time
 import threading
+import configparser as cp
+import traceback
 
 class Logger:
 # Esta carpeta almacena los parametros de logging en consola para propositos
@@ -44,12 +47,22 @@ class Logger:
         spinner = SpinnerThread()
         spinner.start()
         
-        callback(*args, **kwargs)
+        try:
+            error_state = 0
+            return_value = callback(*args, **kwargs) 
+        except Exception as e:
+            exception = e
+            error_state = 1
 
-        spinner.stop()
+        spinner.stop(error_state=error_state)
+        
+        if error_state:
+            print()
+            raise exception.with_traceback(exception.__traceback__)
 
         print()
 
+        return return_value
 
 class SpinnerThread(threading.Thread):
 
@@ -57,11 +70,15 @@ class SpinnerThread(threading.Thread):
         super().__init__(target=self._spin)
         self._stopevent = threading.Event()
 
-    def stop(self):
+    def stop(self, error_state=0):
         self._stopevent.set()
 
         sys.stdout.write('\b')
-        sys.stdout.write('Hecho!')
+
+        if not error_state:
+            sys.stdout.write('Hecho!')
+        else:
+            sys.stdout.write('Error!')
 
     def _spin(self):
 
@@ -77,3 +94,33 @@ class SpinnerThread(threading.Thread):
             i += 1
             if i > 3:
                 i=  0
+
+
+class AppConfig(cp.ConfigParser):
+
+    default_path = 'config.ini'
+
+    default_db_folder = 'databases'
+    default_logging_mode = 'minimal'
+    default_caching_mode = 'minimal'
+
+    def __init__(self, path=default_path):
+        super().__init__()
+
+        if os.path.exists(path):
+            self.read(path)
+        else:
+            self.set_defaults()
+            with open(path, 'w') as f:
+                self.write(f)
+        
+    
+    def set_defaults(self):
+
+        self['PATHS'] = {}
+        self['PATHS']['database_folder'] = AppConfig.default_db_folder
+
+        self['PREFERENCES'] = {}
+        self['PREFERENCES']['logging_mode'] = AppConfig.default_logging_mode
+        self['PREFERENCES']['caching_mode'] = AppConfig.default_caching_mode
+    

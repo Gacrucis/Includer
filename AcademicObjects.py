@@ -1,4 +1,5 @@
 import os
+import asyncio
 import urllib.request as ulib
 from mechanize import Browser
 import bs4 as bs
@@ -7,7 +8,7 @@ from CustomExceptions import InvalidSubjectCode
 
 class Subject:
 
-    def __init__(self, subject_code, logging=True):
+    def __init__(self, subject_code, import_groups=True, logging=1):
 
         self.code = str(subject_code)
 
@@ -23,6 +24,9 @@ class Subject:
         Logger.info_log(f"Nombre de la asignatura [{self.code}] : {self.name}")
 
         self.groups = {}
+
+        if import_groups:
+            self.import_groups()
 
     def get_subjectHTML(self):
 
@@ -43,53 +47,55 @@ class Subject:
             raise InvalidSubjectCode()
             
         return html
-
-    def import_all_groups(self, logging=True):
+    
+    def import_groups(self, logging=1):    
 
         if logging:
             Logger.course_log(f"Obteniendo grupos de {self.name} . . .")
 
-        imported_groups = {}
-        index = 0
+        tasks = []
+        loop = asyncio.get_event_loop()
 
-        for line in self.html_lines:
-
-            line = str(line).strip()
+        for index, line in enumerate(self.html_lines):
 
             if "Grupo" in line:
+                line = line.strip()
                 group_code = line[7:]
 
-                if logging:
+                if logging > 1:
                     Logger.info_log(f"Grupo de {self.name} detectado: {group_code}")
-                    Logger.course_log(f"[{group_code}] Detectando información . . .")
                 
                 group_capacity = int(str(self.html_lines[index + 13]).strip())
                 group_students = int(str(self.html_lines[index + 20]).strip())
 
-                if logging:
-                    Logger.info_log(f"[{group_code}] Capacidad : {group_capacity} -- Matriculados: {group_students}")
+                group_creator = loop.run_in_executor(None, Group, self, group_code, group_capacity, group_students, False)
+                tasks.append(group_creator)
 
-                group = Group(self, group_code, group_capacity, group_students, logging=logging)
-
-                if logging:
-                    print() #Deja un espacio para facilitar el logging entre grupos
-
-                self.groups[group_code] = group
-                imported_groups[group_code] = group
-
+                index += 20
             index += 1
-        
-        return imported_groups
 
-    def pretty_import_all_groups(self, *args, **kwargs):
-
-        Logger.animated_course_log('Importando todos los grupos', self.import_all_groups, logging=False)
+        if logging:
+            imported_groups = Logger.animated_course_log(f'Importando informacion de {len(tasks)} grupos', 
+            loop.run_until_complete, 
+            asyncio.gather(*tasks))
         
-    
-    def import_group(self, group_code, logging=False):
+        else:
+            imported_groups = loop.run_until_complete(asyncio.gather(*tasks))
+        
+        group_dict = {group.code : group for group in imported_groups}
+        self.groups.update(group_dict)
+        
+        return group_dict
+        
+    def import_group(self, group_code, duplicate=False, logging=0):
 
         if logging:
             Logger.course_log(f"Obteniendo grupo {group_code} de {self.name} . . .")
+        
+        if not duplicate and self.groups[group_code]:
+            if logging:
+                Logger.info_log(f"Grupo de {self.name} duplicado: {group_code}")
+            return  self.groups[group_code]
 
         index = 0
         groups = []
@@ -130,7 +136,7 @@ class Subject:
 
 class Group:
 
-    def __init__(self, subject, group_code, capacity: int, student_quantity: int, logging=True):
+    def __init__(self, subject, group_code, capacity: int, student_quantity: int, logging=1):
 
         self.subject = subject
         self.code = group_code
@@ -173,7 +179,7 @@ class Group:
         return prettified_soup
 
 
-    def _get_teachers(self, logging=True):
+    def _get_teachers(self, logging=1):
 
         teachers = []
 
