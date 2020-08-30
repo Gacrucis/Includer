@@ -3,7 +3,8 @@ import asyncio
 import urllib.request as ulib
 from mechanize import Browser
 import bs4 as bs
-from AppUtils import Logger
+import sqlite3 as sql
+from AppUtils import *
 from CustomExceptions import InvalidSubjectCode
 
 class Subject:
@@ -133,6 +134,22 @@ class Subject:
         
         Logger.error_log(f'Grupo {group_code} no encontrado')
         return None
+
+    def create_database(self, path):
+
+        connection = sql.connect(path)
+        db_name = 'subjects'
+
+        with connection:
+            if not check_table_exists(connection, db_name):
+                connection.execute('''CREATE TABLE ?
+                (subject_id INTEGER PRIMARY KEY, 
+                trans text, 
+                symbol text, 
+                qty real, 
+                price real)''', 
+                db_name)
+
 
 class Group:
 

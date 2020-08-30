@@ -101,8 +101,8 @@ class AppConfig(cp.ConfigParser):
     default_path = 'config.ini'
 
     default_db_folder = 'databases'
-    default_logging_mode = 'minimal'
-    default_caching_mode = 'minimal'
+    default_logging_mode = '1'
+    default_caching_mode = '1'
 
     def __init__(self, path=default_path):
         super().__init__()
@@ -123,4 +123,18 @@ class AppConfig(cp.ConfigParser):
         self['PREFERENCES'] = {}
         self['PREFERENCES']['logging_mode'] = AppConfig.default_logging_mode
         self['PREFERENCES']['caching_mode'] = AppConfig.default_caching_mode
+
+def check_table_exists(dbcon, tablename):
+    dbcur = dbcon.cursor()
+    dbcur.execute("""
+        SELECT COUNT(*)
+        FROM information_schema.tables
+        WHERE table_name = '{0}'
+        """.format(tablename.replace('\'', '\'\'')))
+    if dbcur.fetchone()[0] == 1:
+        dbcur.close()
+        return True
+
+    dbcur.close()
+    return False
     
