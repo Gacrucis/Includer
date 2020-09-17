@@ -182,6 +182,7 @@ class Group:
 
         self.html = self._get_html()
         self.teachers = self._get_teachers(logging)
+        self.rooms = self._get_rooms()
 
         try:
             self.capacity_index = round(capacity/student_quantity, 2)
@@ -256,6 +257,35 @@ class Group:
             line_index += 1
 
         return schedule
+
+    def _get_rooms(self):
+
+        rooms = []
+
+        line_index = 0
+
+        for line in self.html:
+
+            if "edificio" in line.lower():
+                room = self.html[line_index + 3]
+
+                # En caso de que no haya un profesor designado, aparecera el string
+                # </td> en la variable room, se verifica que no este este string con
+                # el if de abajo, en caso de no estar significa que existe un profesor
+                # valido en la variable room
+
+                if "<" not in room:
+                    rooms.append(' '.join(room.strip().split()))
+
+            line_index += 1
+
+        # Elimina los salones duplicados
+        rooms = list(dict.fromkeys(rooms))
+
+        # if logging:
+        #     Logger.info_log(f"[{self.code}] Profesores: {rooms}")
+
+        return rooms
 
     def _parse_raw_schedule(self):
 

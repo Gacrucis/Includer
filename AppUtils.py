@@ -5,20 +5,21 @@ import threading
 import configparser as cp
 import traceback
 
+
 class Logger:
-# Esta carpeta almacena los parametros de logging en consola para propositos
-# de debug, de la misma manera permite un facil apagado de este logging si se
-# reemplazan las funciones con la keyword pass
+    # Esta carpeta almacena los parametros de logging en consola para propositos
+    # de debug, de la misma manera permite un facil apagado de este logging si se
+    # reemplazan las funciones con la keyword pass
 
-    tags = ["[INFO]","[IN PROGRESS]","[ERROR]"]
+    tags = ["[INFO]", "[IN PROGRESS]", "[ERROR]"]
 
-    #Encuentra el tag mas largo y cuenta su largo para alinear el logging
+    # Encuentra el tag mas largo y cuenta su largo para alinear el logging
     longest_tag_lenght = len(max(tags, key=len))
     # Alinea las tags para que el logging se vea organizado y legible
 
     for i, tag in enumerate(tags):
-        tags[i] = tag.rjust(longest_tag_lenght)    
-    
+        tags[i] = tag.rjust(longest_tag_lenght)
+
     infoTag = tags[0]
     courseTag = tags[1]
     errorTag = tags[2]
@@ -34,7 +35,7 @@ class Logger:
     @staticmethod
     def error_log(string):
         print(f"{Logger.errorTag} {string}")
-    
+
     @staticmethod
     def custom_log(tag, string):
         tag = tag.rjust(Logger.longest_tag_lenght)
@@ -46,16 +47,16 @@ class Logger:
         print(f"{Logger.courseTag} {string} . . . ", end=' ')
         spinner = SpinnerThread()
         spinner.start()
-        
+
         try:
             error_state = 0
-            return_value = callback(*args, **kwargs) 
+            return_value = callback(*args, **kwargs)
         except Exception as e:
             exception = e
             error_state = 1
 
         spinner.stop(error_state=error_state)
-        
+
         if error_state:
             print()
             raise exception.with_traceback(exception.__traceback__)
@@ -63,6 +64,7 @@ class Logger:
         print()
 
         return return_value
+
 
 class SpinnerThread(threading.Thread):
 
@@ -93,7 +95,7 @@ class SpinnerThread(threading.Thread):
             sys.stdout.write('\b')
             i += 1
             if i > 3:
-                i=  0
+                i = 0
 
 
 class AppConfig(cp.ConfigParser):
@@ -113,8 +115,7 @@ class AppConfig(cp.ConfigParser):
             self.set_defaults()
             with open(path, 'w') as f:
                 self.write(f)
-        
-    
+
     def set_defaults(self):
 
         self['PATHS'] = {}
@@ -123,6 +124,7 @@ class AppConfig(cp.ConfigParser):
         self['PREFERENCES'] = {}
         self['PREFERENCES']['logging_mode'] = AppConfig.default_logging_mode
         self['PREFERENCES']['caching_mode'] = AppConfig.default_caching_mode
+
 
 def check_table_exists(dbcon, tablename):
     dbcur = dbcon.cursor()
@@ -137,4 +139,3 @@ def check_table_exists(dbcon, tablename):
 
     dbcur.close()
     return False
-    
