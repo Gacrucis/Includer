@@ -6,7 +6,7 @@ from IncludingObjects import Schedule
 from AppUtils import Logger
 
 # codigos = [22956,22957,22958,22959]
-codigos = [20255,22957,22958,22959]
+codigos = [20255, 22957, 22958, 22959]
 # codigos = [22958]
 
 horario = Schedule()
