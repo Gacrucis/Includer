@@ -89,7 +89,6 @@ class DataBase():
         # self.add_facultad()
         # self.add_plan_estudios()
         # self.add_carreras()
-        
         self.add_rooms()
         self.add_shifts()
         
