@@ -99,10 +99,13 @@ class DataBase():
         # self.add_facultad()
         # self.add_plan_estudios()
         # self.add_carreras()
+
+        self.add_grades()
+        self.add_gradestudent()
         
         self.add_rooms()
         self.add_groups()
-        self.add_shifts()
+        # self.add_shifts()
         
 
     def add_sexo(self):
@@ -308,11 +311,7 @@ class DataBase():
         
         queries = self.add_fromlist(structure, self.room_queries)
 
-        with open('rooms.txt', 'w') as f:
-
-            for query in queries:
-
-                f.write(str(query) + '\n')
+        self.to_text(queries, 'Salon.sql')
 
     
     def add_groups(self):
@@ -370,11 +369,7 @@ class DataBase():
 
         queries = self.add_fromlist(structure, self.group_queries)
         
-        with open('groups.txt', 'w') as f:
-
-            for query in queries:
-
-                f.write(str(query) + '\n')
+        self.to_text(queries, 'Grupo.sql')
     
 
     def add_shifts(self):
@@ -436,17 +431,13 @@ class DataBase():
 
             queries = self.add_fromlist(structure, self.shift_queries)
 
-            with open('shifts.txt', 'w') as f:
-
-                for query in queries:
-
-                    f.write(str(query) + '\n')
+            self.to_text(queries, 'Franja.sql')
     
 
     def add_grades(self):
 
         structure = f"""
-            INSERT INTO Franja (calificacion_id, nota, estudiante_fk, asignatura_fk)
+            INSERT INTO CalificacionAsignatura (calificacion_id, nota, estudiante_fk, asignatura_fk)
             VALUES (?, ?, ?, ?)
         """
 
@@ -457,6 +448,8 @@ class DataBase():
         
         self.grades_queries = []
 
+        current_id = 1
+
         for sid in range(1, student_range + 1):
             
             for n in range(3):
@@ -466,8 +459,60 @@ class DataBase():
 
                 grade = grade_unit + grade_decimal
 
-                # self.
+                rand_subject = random.choice(list(range(1, subject_range)))
 
+                self.student_sync[sid].append(rand_subject)
+
+                self.grades_queries.append([
+                    current_id,
+                    grade,
+                    sid,
+                    rand_subject
+                ])
+
+                current_id += 1
+            
+        queries = self.add_fromlist(structure, self.grades_queries)
+
+        self.to_text(queries, 'CalificacionAsignatura.sql')
+    
+    def add_gradestudent(self):
+
+        structure = f"""
+            INSERT INTO AsignaturaEstudiante (asignatura_estudiante_id, estudiante_fk, asignatura_fk)
+            VALUES (?, ?, ?)
+        """
+
+        current_id = 1
+
+        self.gradestudent_queries = []
+
+        for student, subjects in self.student_sync.items():
+
+            for subject in subjects:
+
+                self.gradestudent_queries.append([
+                    current_id,
+                    student,
+                    subject
+                ])
+
+                current_id += 1
+
+        queries = self.add_fromlist(structure, self.gradestudent_queries)
+
+        self.to_text(queries, 'AsignaturaEstudiante.sql')
+
+    
+        
+    def to_text(self, queries, path='out.sql'):
+
+        with open(path, 'w') as f:
+
+            for query in queries:
+
+                f.write(str(query) + '\n')
+            
 
 
 
