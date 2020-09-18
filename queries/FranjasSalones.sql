@@ -1,3 +1,4 @@
+-- Obtiene las franjas o lecciones por salones
 SELECT CONCAT(ed.nombre, '-', sal.codigo),
     f.hora_inicio,
     f.hora_fin,

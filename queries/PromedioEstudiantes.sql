@@ -1,3 +1,4 @@
+-- Obtiene el promedio por estudiante
 SELECT p.persona_id AS id,
     p.nombre,
     AVG(ca.nota) AS promedio

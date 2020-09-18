@@ -1,3 +1,4 @@
+-- Obtiene las personas adscritas a la universidad por departamento
 SELECT dir.departamento AS departamento,
     COUNT(*) AS cantidad_personas
 FROM persona AS p,

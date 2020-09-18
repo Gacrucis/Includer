@@ -1,3 +1,4 @@
+-- Obtiene los estudiantes que quedaran PFU este semestre
 SELECT *
 FROM(
         SELECT p.persona_id AS id,

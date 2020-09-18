@@ -1,3 +1,4 @@
+-- Obtiene la deuda total por estudiante
 SELECT p.nombre AS estudiante,
     SUM(d.cantidad) AS deuda
 FROM persona AS p,

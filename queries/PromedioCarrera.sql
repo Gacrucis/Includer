@@ -1,3 +1,4 @@
+-- Obtiene el promedio de los estudiantes por carrera
 SELECT car.nombre AS carrera,
     AVG(calif.nota) AS Promedio
 FROM estudiante AS est,

@@ -1,3 +1,4 @@
+-- Obtiene la cantidad de profesores por escuela
 SELECT esc.nombre AS Escuela,
     COUNT(*) AS cantidad_profesores
 FROM profesor AS prof,

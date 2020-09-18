@@ -1,3 +1,4 @@
+-- Obtiene la cantidad de franjas por edificio, indicando los edificios con mas clases
 SELECT ed.nombre AS edificio,
     COUNT(*) AS cantidad
 FROM franja AS f,

@@ -1,3 +1,4 @@
+-- Obtiene las asignaturas para los profesores
 SELECT DISTINCT p.nombre AS Profesor,
     a.nombre AS Asignatura
 FROM persona AS p,
