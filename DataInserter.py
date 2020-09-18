@@ -318,7 +318,7 @@ class DataBase():
     def add_groups(self):
 
         structure = f"""
-            INSERT INTO Franja (grupo_id, codigo, cantidad_estudiantes, capacidad, codigo_asignatura, profesor_fk)
+            INSERT INTO Grupo (grupo_id, codigo, cantidad_estudiantes, capacidad, codigo_asignatura, profesor_fk)
             VALUES (?, ?, ?, ?, ?, ?)
         """
         teacher_sync = self.sheets['ProfesoresSync']
@@ -441,6 +441,38 @@ class DataBase():
                 for query in queries:
 
                     f.write(str(query) + '\n')
+    
+
+    def add_grades(self):
+
+        structure = f"""
+            INSERT INTO Franja (calificacion_id, nota, estudiante_fk, asignatura_fk)
+            VALUES (?, ?, ?, ?)
+        """
+
+        student_range = 1300
+        subject_range = 247
+
+        self.student_sync = {sid: [] for sid in range(1, student_range + 1)}
+        
+        self.grades_queries = []
+
+        for sid in range(1, student_range + 1):
+            
+            for n in range(3):
+
+                grade_unit = random.choice([0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4])
+                grade_decimal = random.randint(0, 10)/10
+
+                grade = grade_unit + grade_decimal
+
+                self.
+
+
+
+
+
+
 
 
 
