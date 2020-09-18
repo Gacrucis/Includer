@@ -15,6 +15,17 @@ class DataBase():
         except Exception as ex:
             print(f"[ERROR] Algo fue mal. - {ex}")
         self.cursor = self.db.cursor()
+
+        self.weekdays = [
+            'LUNES',
+            'MARTES',
+            'MIERCOLES',
+            'JUEVES',
+            'VIERNES',
+            'SABADO',
+            'DOMINGO'
+        ]
+
         self.init_files()
         self.gestioner()
 
@@ -80,6 +91,7 @@ class DataBase():
         # self.add_carreras()
         
         self.add_rooms()
+        self.add_shifts()
         
 
     def add_sexo(self):
@@ -234,7 +246,7 @@ class DataBase():
         groups_sheet = self.sheets['Grupo']
         buildings_sheet = self.sheets['Edificio']
 
-        buildings = {}
+        self.buildings = {}
 
         for row in buildings_sheet.iter_rows(min_row=2):
 
@@ -245,10 +257,10 @@ class DataBase():
 
             building_name = (row[1].value).upper()
 
-            buildings.setdefault(building_name, int(building_id))
-            
+            self.buildings.setdefault(building_name, int(building_id))
 
         self.room_queries = []
+        self.room_sync = {}
 
         current_id = 0
 
@@ -261,7 +273,7 @@ class DataBase():
 
             try:
 
-                room_building = buildings[str(row[4].value).upper()]
+                room_building = self.buildings[str(row[4].value).upper()]
             
             except KeyError as e:
 
@@ -279,14 +291,80 @@ class DataBase():
             
             else:
                 unique_ids.add(room_uniqueid)
+            
+            self.room_sync[room_uniqueid] = current_id
+
+            current_id += 1
         
         queries = self.add_fromlist(structure, self.room_queries)
 
-        with open('out.txt', 'w') as f:
+        # with open('out.txt', 'w') as f:
 
-            for query in queries:
+        #     for query in queries:
 
-                f.write(str(query) + '\n')
+        #         f.write(str(query) + '\n')
+    
+    def add_shifts(self):
+
+        structure = f"""
+            INSERT INTO Franja (franja_id, hora_inicio, hora_fin, salon_fk, grupo_fk, dia_semana_fk)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+
+        shifts_sheet = self.sheets['Franja']
+
+        self.shift_queries = []
+
+        current_id = 0
+
+        for row in shifts_sheet.iter_rows(min_row=2):
+
+            raw_building = str(row[5].value).upper().strip()
+
+            try:
+                building_num = self.buildings[raw_building]
+            
+            except KeyError:
+                continue
+
+            room_code = str(row[6].value).split(' ')[1].strip()
+                
+            room_uniqueid = f'{building_num}{room_code}'
+
+            try:
+                building_fk = self.room_sync[room_uniqueid]
+
+            except KeyError:
+                continue
+
+            start_hour = int(row[0].value)
+            end_hour = int(row[1].value)
+            weekday_num = self.weekdays.index(str(row[2].value).strip().upper())+1
+
+            self.shift_queries.append([
+                current_id,
+                start_hour,
+                end_hour,
+                building_fk,
+                None,
+                weekday_num
+            ])
+
+            current_id += 1
+            
+            # TBA
+
+            queries = self.add_fromlist(structure, self.shift_queries)
+
+            with open('out.txt', 'w') as f:
+
+                for query in queries:
+
+                    f.write(str(query) + '\n')
+            
+
+
+
 
 
 
