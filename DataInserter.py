@@ -32,28 +32,31 @@ class DataBase():
 
     def init_files(self):
 
-        pass
-
-        # self.sheets = {}
-        # self.simple_sheets = [
-        #     # 'Sexo',
-        #     # #     'TipoCarrera',
-        #     # #     'TipoIdentificacion',
-        #     # #     'TipoDeuda',
-        #     # 'TipoAsignatura',
-        #     # #     'DiaSemana',
-        #     # #     'Direccion',
-        #     # #     'Edificio',
-        #     # 'Escuela',
-        #     # 'EstadoAsignatura',
-        #     # 'Facultad',
-        #     # 'PlanEstudio',
-        #     # 'Carrera',
-        # ]
+        self.sheets = {}
+        self.simple_sheets = [
+            'Sexo',
+            'TipoCarrera',
+            'TipoIdentificacion',
+            'TipoDeuda',
+            'TipoAsignatura',
+            'DiaSemana',
+            'Direccion',
+            'Edificio',
+            'Escuelas',
+            'EstadoAsignatura',
+            'Facultad',
+            'PlanEstudios',
+            'Carreras',
+            'Persona',
+            'Professor',
+            'Estudiante',
+            'AdministradorCarrera',
+            'AsignaturaPlan'
+        ]
 
         # for sheet in self.simple_sheets:
 
-        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+            self.sheets[sheet] = xl.load_workbook(f'files\{sheet}.xlsx').active
 
         # print(self.sheets)
 
@@ -88,11 +91,6 @@ class DataBase():
 
     def gestioner(self):
         """ call functions """
-
-        self.add_deuda()
-
-        # self.add_asignatura()
-
         # self.add_sexo()
         # self.add_tipo_carrera()
         # self.add_tipo_identificacion()
@@ -106,35 +104,17 @@ class DataBase():
         # self.add_facultad()
         # self.add_plan_estudios()
         # self.add_carreras()
-
+        # self.add_persona()
+        self.add_profesor()
+        # self.add_estudiante()
+        # self.add_administrador_carrera()
+        self.add_asignatura_plan()
         # self.add_grades()
         # self.add_gradestudent()
 
         # self.add_rooms()
         # self.add_groups()
         # self.add_shifts()
-
-    def add_deuda(self):
-        structure = f"""
-            INSERT INTO Deuda (deuda_id, cantidad, descripcion, tipo_deuda_fk, estudiante_fk)
-            VALUES (?, ?, '?', ?, ?)
-        """
-
-        queries = self.add(structure, xl.load_workbook(
-            f'files/Deuda.xlsx').active)
-
-        self.to_text(queries, 'Deuda.sql')
-
-    def add_asignatura(self):
-        structure = f"""
-            INSERT INTO Asignatura (asignatura_id, codigo, numero_creditos, nombre, tipo_asignatura_fk)
-            VALUES (?, ?, ?, '?', ?)
-        """
-
-        queries = self.add(structure, xl.load_workbook(
-            f'files/Asignatura.xlsx').active)
-
-        self.to_text(queries, 'Asignatura.sql')
 
     def add_sexo(self):
         structure = f"""
@@ -157,7 +137,7 @@ class DataBase():
     def add_tipo_identificacion(self):
         structure = f"""
             INSERT INTO TipoIdentificacion (tipo_identificacion_id, nombre)
-            VALUES (?, ?)
+            VALUES (?, "?")
         """
         queries = self.add(structure, self.sheets['TipoIdentificacion'])
 
@@ -166,7 +146,7 @@ class DataBase():
     def add_tipo_deuda(self):
         structure = f"""
             INSERT INTO TipoDeuda (tipo_deuda_id, nombre, maximo)
-            VALUES (?, ?, ?)
+            VALUES (?, "?", ?)
         """
         queries = self.add(structure, self.sheets['TipoDeuda'])
 
@@ -192,7 +172,7 @@ class DataBase():
 
     def add_direccion(self):
         structure = f"""
-            INSERT INTO Direccion (direccion_id, calle, numero_a, numero_b, ciudad, departamento)
+            INSERT INTO Direccion (direccion_id, calle, numero_a, numero_b, "ciudad", "departamento")
             VALUES (?, ?, ?, ?, ?, ?)
         """
         queries = self.add(structure, self.sheets['Direccion'])
@@ -211,9 +191,9 @@ class DataBase():
     def add_escuela(self):
         structure = f"""
             INSERT INTO Escuela (escuela_id, nombre, facultad_fk, edificio_fk)
-            VALUES (?,'?', ?, ?)
+            VALUES (?, "?", ?, ?)
         """
-        queries = self.add(structure, self.sheets['Escuela'])
+        queries = self.add(structure, self.sheets['Escuelas'])
 
         self.to_text(queries, 'Escuela.sql')
 
@@ -229,7 +209,7 @@ class DataBase():
     def add_facultad(self):
         structure = f"""
             INSERT INTO Facultad (facultad_id, facultad_nombre)
-            VALUES (?, '?')
+            VALUES (?, "?")
         """
         queries = self.add(structure, self.sheets['Facultad'])
 
@@ -247,11 +227,56 @@ class DataBase():
     def add_carreras(self):
         structure = f"""
             INSERT INTO Carrera (carrera_id, nombre, plan_actual, cantidad_semestres, escuela_fk, tipo_carrera_fk)
-            VALUES (?, '?', ?, ?, ?, ?)
+            VALUES (?, "?", ?, ?, ?, ?)
         """
         queries = self.add(structure, self.sheets['Carrera'])
 
         self.to_text(queries, 'Carrera.sql')
+
+    def add_persona(self):
+        structure = f"""
+            INSERT INTO Persona (persona_id, "nombre", identificacion, celular, direccion_fk, sexo_fk, tipo_identificacion_fk)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+        queries = self.add(structure, self.sheets['Persona'])
+
+        self.to_text(queries, 'sql\Persona.sql')
+    
+    def add_profesor(self):
+        structure = f"""
+            INSERT INTO Profesor (profesor_id, persona_fk, escuela_fk)
+            VALUES (?, ?, ?)
+        """
+        queries = self.add(structure, self.sheets['Professor'])
+
+        self.to_text(queries, 'sql\Profesor.sql')
+
+    def add_estudiante(self):
+        structure = f"""
+            INSERT INTO Estudiante (estudiante_id, codigo, persona_fk)
+            VALUES (?, ?, ?)
+        """
+        queries = self.add(structure, self.sheets['Estudiante'])
+
+        self.to_text(queries, 'sql\Estudiante.sql')
+
+    def add_administrador_carrera(self):
+        structure = f"""
+            INSERT INTO AdministradorCarrera (administrador_carrera_id, plan_carrera_numero_fk, estudiante_fk, carrera_fk)
+            VALUES (?, ?, ?, ?)
+        """
+        queries = self.add(structure, self.sheets['AdministradorCarrera'])
+
+        self.to_text(queries, 'sql\AdministradorCarrera.sql')
+
+    def add_asignatura_plan(self):
+        structure = f"""
+            INSERT INTO AsignaturaPlan (asignatura_plan_id, asignatura_fk, plan_estudios_fk)
+            VALUES (?, ?, ?)
+        """
+        queries = self.add(structure, self.sheets['AsignaturaPlan'])
+
+        self.to_text(queries, 'sql\AsignaturaPlan.sql') 
 
     def add(self, structure, sheet):
         """ structure is something like:
