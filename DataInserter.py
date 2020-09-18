@@ -18,27 +18,39 @@ class DataBase():
         self.gestioner()
 
     def init_files(self):
-        self.sexo_sheet = xl.load_workbook('files\Sexo.xlsx').active
-        self.tipo_carrera_sheet = xl.load_workbook(
-            'files\TipoCarrera.xlsx').active
-        self.tipo_identificacion_sheet = xl.load_workbook(
-            'files\TipoIdentificacion.xlsx').active
-        self.tipo_deuda_sheet = xl.load_workbook('files\TipoDeuda.xlsx').active
-        self.tipo_asignatura_sheet = xl.load_workbook(
-            'files\TipoAsignatura.xlsx').active
-        self.dia_semana_sheet = xl.load_workbook('files\DiaSemana.xlsx').active
-        self.direccion_sheet = xl.load_workbook('files\Direccion.xlsx').active
-        self.edificio_sheet = xl.load_workbook('files\Edificios.xlsx').active
-        self.escuela_sheet = xl.load_workbook('files\Escuelas.xlsx').active
-        self.estado_asignatura_sheet = xl.load_workbook('files\EstadoAsignatura.xlsx').active
-        self.facultad_sheet = xl.load_workbook('files\Facultad.xlsx').active
-        self.plan_estudios_sheet = xl.load_workbook('files\PlanEstudios.xlsx').active
-        self.carrera_sheet = xl.load_workbook('files\Carreras.xlsx').active
+
+        self.sheets = {}
+        self.simple_sheets = [
+            'Sexo',
+            'TipoCarrera',
+            'TipoIdentificacion',
+            'TipoDeuda',
+            'TipoAsignatura',
+            'DiaSemana',
+            'Direccion',
+            'Edificio',
+            'Escuelas',
+            'EstadoAsignatura',
+            'Facultad',
+            'PlanEstudios',
+            'Carreras',
+        ]
+
+        for sheet in self.simple_sheets:
+
+            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+
+        print(self.sheets)
+
+        # More complex tables
+
+        # self.
+    
 
     def __del__(self):
         # save file and database
         self.cursor.close()
-        self.db.commit()
+        # self.db.commit()
         self.db.close()
 
     def gestioner(self):
@@ -62,91 +74,91 @@ class DataBase():
             INSERT INTO Sexo (sexo_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sexo_sheet)
+        self.add(structure, self.sheets['Sexo'])
 
     def add_tipo_carrera(self):
         structure = f"""
             INSERT INTO TipoCarrera (tipo_carrera_id, nombre, presencial)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.tipo_carrera_sheet)
+        self.add(structure, self.sheets['TipoCarrera'])
 
     def add_tipo_identificacion(self):
         structure = f"""
             INSERT INTO TipoIdentificacion (tipo_identificacion_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.tipo_identificacion_sheet)
+        self.add(structure, self.sheets['TipoIdentificacion'])
 
     def add_tipo_deuda(self):
         structure = f"""
             INSERT INTO TipoDeuda (tipo_deuda_id, nombre, maximo)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.tipo_deuda_sheet)
+        self.add(structure, self.sheets['TipoDeuda'])
 
     def add_tipo_asignatura(self):
         structure = f"""
             INSERT INTO Carrera (tipo_asignatura_id, descripcion)
             VALUES (?, ?)
         """
-        self.add(structure, self.tipo_asignatura_sheet)
+        self.add(structure, self.sheets['TipoAsignatura'])
 
     def add_dia_semana(self):
         structure = f"""
             INSERT INTO DiaSemana (dia_semana_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.dia_semana_sheet)
+        self.add(structure, self.sheets['DiaSemana'])
 
     def add_direccion(self):
         structure = f"""
             INSERT INTO Direccion (direccion_id, calle, numero_a, numero_b, ciudad, departamento)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.add(structure, self.direccion_sheet)
+        self.add(structure, self.sheets['Direccion'])
     
     def add_edificio(self):
         structure = f"""
             INSERT INTO Edificio (edificio_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.edificio_sheet)
+        self.add(structure, self.sheets['Edificio'])
     
     def add_escuela(self):
         structure = f"""
             INSERT INTO Escuela (escuela_id, nombre, facultad_fk, edificio_fk)
             VALUES (?, ?, ?, ?)
         """
-        self.add(structure, self.escuela_sheet)
+        self.add(structure, self.sheets['Escuela'])
     
     def add_estado_asignatura(self):
         structure = f"""
             INSERT INTO EstadoAsignatura (estado_asignatura_id, descripcion)
             VALUES (?, ?)
         """
-        self.add(structure, self.estado_asignatura_sheet)
+        self.add(structure, self.sheets['EstadoAsignatura'])
     
     def add_facultad(self):
         structure = f"""
             INSERT INTO Facultad (facultad_id, facultad_nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.facultad_sheet)
+        self.add(structure, self.sheets['Facultad'])
     
     def add_plan_estudios(self):
         structure = f"""
             INSERT INTO PlanEstudios (plan_estudios_id, numero_plan, carrera_fk)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.plan_estudios_sheet)
+        self.add(structure, self.sheets['PlanEstudios'])
 
     def add_carreras(self):
         structure = f"""
             INSERT INTO Carrera (carrera_id, nombre, plan_actual, cantidad_semestres, escuela_fk, tipo_carrera_fk)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.add(structure, self.carrera_sheet)
+        self.add(structure, self.sheets['Carreras'])
 
     def add(self, structure, sheet):
         """ structure is something like:
