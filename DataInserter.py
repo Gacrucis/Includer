@@ -19,6 +19,8 @@ class DataBase():
 
     def init_files(self):
         self.sexo_sheet = xl.load_workbook('files\Sexo.xlsx').active
+        self.tipo_carrera_sheet = xl.load_workbook(
+            'files\TipoCarrera.xlsx').active
 
     def __del__(self):
         # save file and database
@@ -28,10 +30,29 @@ class DataBase():
 
     def gestioner(self):
         """ call funcitons """
-        self.add_sexo()
+        # self.add_sexo()
+        self.add_tipo_carrera()
 
     def add_sexo(self):
-        ws = self.sexo_sheet
+        structure = f"""
+            INSERT INTO Sexo (sexo_id, nombre)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.sexo_sheet)
+
+    def add_tipo_carrera(self):
+        structure = f"""
+            INSERT INTO TipoCarrera (tipo_carrera_id, nombre, presencial)
+            VALUES (?, ?, ?)
+        """
+        self.add(structure, self.tipo_carrera_sheet)
+
+    def add(self, structure, sheet):
+        """ structure is something like:
+            INSERT INTO table_name (some attrs)
+            VALUES (? ,? , ...)
+        """
+        ws = sheet
         max_col = ws.max_column + 1
         max_row = ws.max_row + 1
         queries = []
@@ -43,11 +64,13 @@ class DataBase():
                 attrs.append(cell.value)
             if not attrs:
                 continue
-            structure = f"""
-                INSERT INTO Sexo (sexo_id, nombre)
-                VALUES ({attrs[0]}, {attrs[1]})
-            """
-            queries.append(structure)
+            query = structure
+            for attr in attrs:
+                query = query.replace('?', str(attr), 1)
+            if not ';' in query:
+                query += ';'
+            queries.append(query)
+
         for index, query in enumerate(queries):
             print(f"[{index}] -> {query}")
 
