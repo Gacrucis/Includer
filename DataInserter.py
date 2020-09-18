@@ -32,50 +32,50 @@ class DataBase():
     def init_files(self):
 
         self.sheets = {}
-        # self.simple_sheets = [
-        #     'Sexo',
-        #     'TipoCarrera',
-        #     'TipoIdentificacion',
-        #     'TipoDeuda',
-        #     'TipoAsignatura',
-        #     'DiaSemana',
-        #     'Direccion',
-        #     'Edificio',
-        #     'Escuelas',
-        #     'EstadoAsignatura',
-        #     'Facultad',
-        #     'PlanEstudios',
-        #     'Carreras',
-        # ]
+        self.simple_sheets = [
+            'Sexo',
+            'TipoCarrera',
+            'TipoIdentificacion',
+            'TipoDeuda',
+            'TipoAsignatura',
+            'DiaSemana',
+            'Direccion',
+            'Edificio',
+            'Escuelas',
+            'EstadoAsignatura',
+            'Facultad',
+            'PlanEstudios',
+            'Carreras',
+        ]
 
-        # for sheet in self.simple_sheets:
+        for sheet in self.simple_sheets:
 
-        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
 
         # print(self.sheets)
 
         # More complex tables
 
-        self.complex_sheets = [
-            'Franja',
-            'Grupo',
-            'Asignatura',
-            'Edificio'
-        ]
+        # self.complex_sheets = [
+        #     'Franja',
+        #     'Grupo',
+        #     'Asignatura',
+        #     'Edificio'
+        # ]
 
-        for sheet in self.complex_sheets:
+        # for sheet in self.complex_sheets:
 
-            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
         
-        # Complementary sheets
+        # # Complementary sheets
 
-        self.complem_sheets = [
-            'ProfesoresSync'
-        ]
+        # self.complem_sheets = [
+        #     'ProfesoresSync'
+        # ]
 
-        for sheet in self.complem_sheets:
+        # for sheet in self.complem_sheets:
 
-            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
     
 
     def __del__(self):
@@ -86,26 +86,26 @@ class DataBase():
 
     def gestioner(self):
         """ call functions """
-        # self.add_sexo()
-        # self.add_tipo_carrera()
-        # self.add_tipo_identificacion()
-        # self.add_tipo_deuda()
-        # self.add_tipo_asignatura()
-        # self.add_dia_semana()
-        # self.add_direccion()
-        # self.add_edificio()
-        # self.add_escuela()
-        # self.add_estado_asignatura()
-        # self.add_facultad()
-        # self.add_plan_estudios()
-        # self.add_carreras()
+        self.add_sexo()
+        self.add_tipo_carrera()
+        self.add_tipo_identificacion()
+        self.add_tipo_deuda()
+        self.add_tipo_asignatura()
+        self.add_dia_semana()
+        self.add_direccion()
+        self.add_edificio()
+        self.add_escuela()
+        self.add_estado_asignatura()
+        self.add_facultad()
+        self.add_plan_estudios()
+        self.add_carreras()
 
         self.add_grades()
         self.add_gradestudent()
         
         self.add_rooms()
         self.add_groups()
-        # self.add_shifts()
+        self.add_shifts()
         
 
     def add_sexo(self):
@@ -113,91 +113,117 @@ class DataBase():
             INSERT INTO Sexo (sexo_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['Sexo'])
+        queries = self.add(structure, self.sheets['Sexo'])
+
+        self.to_text(queries, 'SEXO.sql')
 
     def add_tipo_carrera(self):
         structure = f"""
             INSERT INTO TipoCarrera (tipo_carrera_id, nombre, presencial)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.sheets['TipoCarrera'])
+        queries = self.add(structure, self.sheets['TipoCarrera'])
+
+        self.to_text(queries, 'TipoCarrera.sql')
 
     def add_tipo_identificacion(self):
         structure = f"""
             INSERT INTO TipoIdentificacion (tipo_identificacion_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['TipoIdentificacion'])
+        queries = self.add(structure, self.sheets['TipoIdentificacion'])
+
+        self.to_text(queries, 'TipoIdentificacion.sql')
 
     def add_tipo_deuda(self):
         structure = f"""
             INSERT INTO TipoDeuda (tipo_deuda_id, nombre, maximo)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.sheets['TipoDeuda'])
+        queries = self.add(structure, self.sheets['TipoDeuda'])
+
+        self.to_text(queries, 'TipoDeuda.sql')
 
     def add_tipo_asignatura(self):
         structure = f"""
-            INSERT INTO Carrera (tipo_asignatura_id, descripcion)
+            INSERT INTO TipoAsignatura (tipo_asignatura_id, descripcion)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['TipoAsignatura'])
+        queries = self.add(structure, self.sheets['TipoAsignatura'])
+
+        self.to_text(queries, 'Carrera.sql')
 
     def add_dia_semana(self):
         structure = f"""
             INSERT INTO DiaSemana (dia_semana_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['DiaSemana'])
+        queries = self.add(structure, self.sheets['DiaSemana'])
+
+        self.to_text(queries, 'DiaSemana.sql')
 
     def add_direccion(self):
         structure = f"""
             INSERT INTO Direccion (direccion_id, calle, numero_a, numero_b, ciudad, departamento)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.add(structure, self.sheets['Direccion'])
+        queries = self.add(structure, self.sheets['Direccion'])
+
+        self.to_text(queries, 'Direccion.sql')
     
     def add_edificio(self):
         structure = f"""
             INSERT INTO Edificio (edificio_id, nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['Edificio'])
+        queries = self.add(structure, self.sheets['Edificio'])
+
+        self.to_text(queries, 'Edificio.sql')
     
     def add_escuela(self):
         structure = f"""
             INSERT INTO Escuela (escuela_id, nombre, facultad_fk, edificio_fk)
             VALUES (?, ?, ?, ?)
         """
-        self.add(structure, self.sheets['Escuela'])
+        queries = self.add(structure, self.sheets['Escuela'])
+
+        self.to_text(queries, 'Escuela.sql')
     
     def add_estado_asignatura(self):
         structure = f"""
             INSERT INTO EstadoAsignatura (estado_asignatura_id, descripcion)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['EstadoAsignatura'])
+        queries = self.add(structure, self.sheets['EstadoAsignatura'])
+
+        self.to_text(queries, 'EstadoAsignatura.sql')
     
     def add_facultad(self):
         structure = f"""
             INSERT INTO Facultad (facultad_id, facultad_nombre)
             VALUES (?, ?)
         """
-        self.add(structure, self.sheets['Facultad'])
+        queries = self.add(structure, self.sheets['Facultad'])
+
+        self.to_text(queries, 'Facultad.sql')
     
     def add_plan_estudios(self):
         structure = f"""
             INSERT INTO PlanEstudios (plan_estudios_id, numero_plan, carrera_fk)
             VALUES (?, ?, ?)
         """
-        self.add(structure, self.sheets['PlanEstudios'])
+        queries = self.add(structure, self.sheets['PlanEstudios'])
+
+        self.to_text(queries, 'PlanEstudios.sql')
 
     def add_carreras(self):
         structure = f"""
             INSERT INTO Carrera (carrera_id, nombre, plan_actual, cantidad_semestres, escuela_fk, tipo_carrera_fk)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        self.add(structure, self.sheets['Carreras'])
+        queries = self.add(structure, self.sheets['Carreras'])
+
+        self.to_text(queries, 'Carrera.sql')
 
     def add(self, structure, sheet):
         """ structure is something like:
@@ -223,8 +249,7 @@ class DataBase():
                 query += ';'
             queries.append(query)
 
-        for index, query in enumerate(queries):
-            print(f"[{index}] -> {query}")
+        return queries
     
     def add_fromlist(self, structure, nestedlist):
 
