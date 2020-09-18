@@ -19,8 +19,11 @@ class DataBase():
 
     def init_files(self):
         self.sexo_sheet = xl.load_workbook('files\Sexo.xlsx').active
-        self.tipo_carrera_sheet = xl.load_workbook(
-            'files\TipoCarrera.xlsx').active
+        self.tipo_carrera_sheet = xl.load_workbook('files\TipoCarrera.xlsx').active
+        self.tipo_identificacion_sheet = xl.load_workbook('files\TipoIdentificacion.xlsx').active
+        self.tipo_deuda_sheet = xl.load_workbook('files\TipoDeuda.xlsx').active
+        self.tipo_asignatura_sheet = xl.load_workbook('files\TipoAsignatura.xlsx').active
+
 
     def __del__(self):
         # save file and database
@@ -31,7 +34,11 @@ class DataBase():
     def gestioner(self):
         """ call funcitons """
         # self.add_sexo()
-        self.add_tipo_carrera()
+        # self.add_tipo_carrera()
+        # self.add_tipo_identificacion()
+        # self.add_tipo_deuda()
+        self.add_tipo_asignatura()
+
 
     def add_sexo(self):
         structure = f"""
@@ -46,6 +53,27 @@ class DataBase():
             VALUES (?, ?, ?)
         """
         self.add(structure, self.tipo_carrera_sheet)
+
+    def add_tipo_identificacion(self):
+        structure = f"""
+            INSERT INTO TipoIdentificacion (tipo_identificacion_id, nombre)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.tipo_identificacion_sheet)
+
+    def add_tipo_deuda(self):
+        structure = f"""
+            INSERT INTO TipoDeuda (tipo_deuda_id, nombre, maximo)
+            VALUES (?, ?, ?)
+        """
+        self.add(structure, self.tipo_deuda_sheet)
+
+    def add_tipo_asignatura(self):
+        structure = f"""
+            INSERT INTO TipoAsignatura (tipo_asignatura_id, descripcion)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.tipo_asignatura_sheet)
 
     def add(self, structure, sheet):
         """ structure is something like:
