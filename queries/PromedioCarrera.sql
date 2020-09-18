@@ -4,4 +4,8 @@ FROM estudiante AS est,
     calificacionasignatura AS calif,
     administradorcarrera AS ac,
     carrera AS car
-WHERE
+WHERE calif.estudiante_fk = est.estudiante_id
+    AND ac.estudiante_fk = est.estudiante_id
+    AND ac.carrera_fk = car.carrera_id
+GROUP BY carrera
+ORDER BY promedio DESC
