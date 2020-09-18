@@ -8,7 +8,7 @@ from Names import man_names as men
 from Names import woman_names as women
 from data import departamentos
 
-NUM_STUDENTS = 500
+NUM_STUDENTS = 200
 
 
 class Personer():
@@ -173,7 +173,7 @@ def main():
         wb = openpyxl.load_workbook('people.xlsx')
     except FileNotFoundError:
         wb = openpyxl.Workbook()
-    pepe = Personer(400, wb)
+    pepe = Personer(NUM_STUDENTS, wb)
 
 
 if __name__ == "__main__":
