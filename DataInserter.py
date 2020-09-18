@@ -66,6 +66,16 @@ class DataBase():
         for sheet in self.complex_sheets:
 
             self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+        
+        # Complementary sheets
+
+        self.complem_sheets = [
+            'ProfesoresSync'
+        ]
+
+        for sheet in self.complem_sheets:
+
+            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
     
 
     def __del__(self):
@@ -91,7 +101,8 @@ class DataBase():
         # self.add_carreras()
         
         self.add_rooms()
-        self.add_shifts()
+        self.add_groups()
+        # self.add_shifts()
         
 
     def add_sexo(self):
@@ -234,7 +245,6 @@ class DataBase():
         
         return queries
 
-
     
     def add_rooms(self):
 
@@ -262,7 +272,7 @@ class DataBase():
         self.room_queries = []
         self.room_sync = {}
 
-        current_id = 0
+        current_id = 1
 
         unique_ids = set()
 
@@ -298,11 +308,11 @@ class DataBase():
         
         queries = self.add_fromlist(structure, self.room_queries)
 
-        # with open('out.txt', 'w') as f:
+        with open('rooms.txt', 'w') as f:
 
-        #     for query in queries:
+            for query in queries:
 
-        #         f.write(str(query) + '\n')
+                f.write(str(query) + '\n')
     
     def add_shifts(self):
 
@@ -315,7 +325,9 @@ class DataBase():
 
         self.shift_queries = []
 
-        current_id = 0
+        self.shift_sync = {}
+
+        current_id = 1
 
         for row in shifts_sheet.iter_rows(min_row=2):
 
@@ -356,14 +368,70 @@ class DataBase():
 
             queries = self.add_fromlist(structure, self.shift_queries)
 
-            with open('out.txt', 'w') as f:
+            with open('shifts.txt', 'w') as f:
 
                 for query in queries:
 
                     f.write(str(query) + '\n')
+    
+    def add_groups(self):
+
+        structure = f"""
+            INSERT INTO Franja (grupo_id, codigo, cantidad_estudiantes, capacidad, codigo_asignatura, profesor_fk)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+        teacher_sync = self.sheets['ProfesoresSync']
+        group_sheet = self.sheets['Grupo']
+
+        self.teacher_sync = {}
+
+        for row in teacher_sync.iter_rows(min_row=2):
+
+            teacher_name = str(row[3].value).strip().upper()
+            teacher_id = row[0].value
+
+            self.teacher_sync.setdefault(teacher_name, teacher_id)
+
+
+        self.group_queries = []
+
+        self.shift_sync = {}
+
+        current_id = 1
             
+        for row in group_sheet.iter_rows(min_row=2):
 
+            group_code = row[0].value
+            group_quantity = row[1].value
+            group_capacity = row[2].value
+            group_subject = row[3].value
+            group_teacher = str(row[6].value).strip().upper()
 
+            try:
+                group_teacher_fk = self.teacher_sync[group_teacher]
+            
+            except KeyError:
+                group_teacher_fk = random.randint(1, 200)
+                print('[INFO] Profesor no encontrado, usado uno aleatorio')
+
+            self.shift_sync.setdefault(f'{group_subject}{group_code}', current_id)
+
+            self.group_queries.append([
+                current_id,
+                group_code,
+                group_quantity,
+                group_capacity,
+                group_subject,
+                group_teacher_fk
+            ])
+
+        queries = self.add_fromlist(structure, self.group_queries)
+        
+        with open('groups.txt', 'w') as f:
+
+            for query in queries:
+
+                f.write(str(query) + '\n')
 
 
 
