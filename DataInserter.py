@@ -19,11 +19,21 @@ class DataBase():
 
     def init_files(self):
         self.sexo_sheet = xl.load_workbook('files\Sexo.xlsx').active
-        self.tipo_carrera_sheet = xl.load_workbook('files\TipoCarrera.xlsx').active
-        self.tipo_identificacion_sheet = xl.load_workbook('files\TipoIdentificacion.xlsx').active
+        self.tipo_carrera_sheet = xl.load_workbook(
+            'files\TipoCarrera.xlsx').active
+        self.tipo_identificacion_sheet = xl.load_workbook(
+            'files\TipoIdentificacion.xlsx').active
         self.tipo_deuda_sheet = xl.load_workbook('files\TipoDeuda.xlsx').active
-        self.tipo_asignatura_sheet = xl.load_workbook('files\TipoAsignatura.xlsx').active
-
+        self.tipo_asignatura_sheet = xl.load_workbook(
+            'files\TipoAsignatura.xlsx').active
+        self.dia_semana_sheet = xl.load_workbook('files\DiaSemana.xlsx').active
+        self.direccion_sheet = xl.load_workbook('files\Direccion.xlsx').active
+        self.edificio_sheet = xl.load_workbook('files\Edificios.xlsx').active
+        self.escuela_sheet = xl.load_workbook('files\Escuelas.xlsx').active
+        self.estado_asignatura_sheet = xl.load_workbook('files\EstadoAsignatura.xlsx').active
+        self.facultad_sheet = xl.load_workbook('files\Facultad.xlsx').active
+        self.plan_estudios_sheet = xl.load_workbook('files\PlanEstudios.xlsx').active
+        self.carrera_sheet = xl.load_workbook('files\Carreras.xlsx').active
 
     def __del__(self):
         # save file and database
@@ -37,8 +47,15 @@ class DataBase():
         # self.add_tipo_carrera()
         # self.add_tipo_identificacion()
         # self.add_tipo_deuda()
-        self.add_tipo_asignatura()
-
+        # self.add_tipo_asignatura()
+        # self.add_dia_semana()
+        # self.add_direccion()
+        # self.add_edificio()
+        # self.add_escuela()
+        # self.add_estado_asignatura()
+        # self.add_facultad()
+        self.add_plan_estudios()
+        # self.add_carreras()
 
     def add_sexo(self):
         structure = f"""
@@ -70,10 +87,66 @@ class DataBase():
 
     def add_tipo_asignatura(self):
         structure = f"""
-            INSERT INTO TipoAsignatura (tipo_asignatura_id, descripcion)
+            INSERT INTO Carrera (tipo_asignatura_id, descripcion)
             VALUES (?, ?)
         """
         self.add(structure, self.tipo_asignatura_sheet)
+
+    def add_dia_semana(self):
+        structure = f"""
+            INSERT INTO DiaSemana (dia_semana_id, nombre)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.dia_semana_sheet)
+
+    def add_direccion(self):
+        structure = f"""
+            INSERT INTO Direccion (direccion_id, calle, numero_a, numero_b, ciudad, departamento)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+        self.add(structure, self.direccion_sheet)
+    
+    def add_edificio(self):
+        structure = f"""
+            INSERT INTO Edificio (edificio_id, nombre)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.edificio_sheet)
+    
+    def add_escuela(self):
+        structure = f"""
+            INSERT INTO Escuela (escuela_id, nombre, facultad_fk, edificio_fk)
+            VALUES (?, ?, ?, ?)
+        """
+        self.add(structure, self.escuela_sheet)
+    
+    def add_estado_asignatura(self):
+        structure = f"""
+            INSERT INTO EstadoAsignatura (estado_asignatura_id, descripcion)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.estado_asignatura_sheet)
+    
+    def add_facultad(self):
+        structure = f"""
+            INSERT INTO Facultad (facultad_id, facultad_nombre)
+            VALUES (?, ?)
+        """
+        self.add(structure, self.facultad_sheet)
+    
+    def add_plan_estudios(self):
+        structure = f"""
+            INSERT INTO PlanEstudios (plan_estudios_id, numero_plan, carrera_fk)
+            VALUES (?, ?, ?)
+        """
+        self.add(structure, self.plan_estudios_sheet)
+
+    def add_carreras(self):
+        structure = f"""
+            INSERT INTO Carrera (carrera_id, nombre, plan_actual, cantidad_semestres, escuela_fk, tipo_carrera_fk)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+        self.add(structure, self.carrera_sheet)
 
     def add(self, structure, sheet):
         """ structure is something like:
