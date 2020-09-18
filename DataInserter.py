@@ -50,7 +50,7 @@ class DataBase():
 
         for sheet in self.simple_sheets:
 
-            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+            self.sheets[sheet] = xl.load_workbook(f'files\{sheet}.xlsx').active
 
         # print(self.sheets)
 
@@ -86,21 +86,6 @@ class DataBase():
 
     def gestioner(self):
         """ call functions """
-<<<<<<< HEAD
-        # self.add_sexo()
-        # self.add_tipo_carrera()
-        # self.add_tipo_identificacion()
-        # self.add_tipo_deuda()
-        # self.add_tipo_asignatura()
-        # self.add_dia_semana()
-        # self.add_direccion()
-        # self.add_edificio()
-        # self.add_escuela()
-        # self.add_estado_asignatura()
-        # self.add_facultad()
-        # self.add_plan_estudios()
-        # self.add_carreras()
-=======
         self.add_sexo()
         self.add_tipo_carrera()
         self.add_tipo_identificacion()
@@ -118,7 +103,6 @@ class DataBase():
         self.add_grades()
         self.add_gradestudent()
         
->>>>>>> 1b8869aefadd857609301d0030087ba918785e19
         self.add_rooms()
         self.add_groups()
         self.add_shifts()
