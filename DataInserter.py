@@ -34,26 +34,26 @@ class DataBase():
 
         pass
 
-        self.sheets = {}
-        self.simple_sheets = [
-            'Sexo',
-            #     'TipoCarrera',
-            #     'TipoIdentificacion',
-            #     'TipoDeuda',
-            'TipoAsignatura',
-            #     'DiaSemana',
-            #     'Direccion',
-            #     'Edificio',
-            'Escuela',
-            'EstadoAsignatura',
-            'Facultad',
-            'PlanEstudio',
-            'Carrera',
-        ]
+        # self.sheets = {}
+        # self.simple_sheets = [
+        #     # 'Sexo',
+        #     # #     'TipoCarrera',
+        #     # #     'TipoIdentificacion',
+        #     # #     'TipoDeuda',
+        #     # 'TipoAsignatura',
+        #     # #     'DiaSemana',
+        #     # #     'Direccion',
+        #     # #     'Edificio',
+        #     # 'Escuela',
+        #     # 'EstadoAsignatura',
+        #     # 'Facultad',
+        #     # 'PlanEstudio',
+        #     # 'Carrera',
+        # ]
 
-        for sheet in self.simple_sheets:
+        # for sheet in self.simple_sheets:
 
-            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
 
         # print(self.sheets)
 
@@ -89,7 +89,9 @@ class DataBase():
     def gestioner(self):
         """ call functions """
 
-        self.add_asignatura()
+        self.add_deuda()
+
+        # self.add_asignatura()
 
         # self.add_sexo()
         # self.add_tipo_carrera()
@@ -111,6 +113,17 @@ class DataBase():
         # self.add_rooms()
         # self.add_groups()
         # self.add_shifts()
+
+    def add_deuda(self):
+        structure = f"""
+            INSERT INTO Deuda (deuda_id, cantidad, descripcion, tipo_deuda_fk, estudiante_fk)
+            VALUES (?, ?, '?', ?, ?)
+        """
+
+        queries = self.add(structure, xl.load_workbook(
+            f'files/Deuda.xlsx').active)
+
+        self.to_text(queries, 'Deuda.sql')
 
     def add_asignatura(self):
         structure = f"""
