@@ -466,7 +466,7 @@ class DataBase():
 
                 grade = grade_unit + grade_decimal
 
-                self.
+                # self.
 
 
 
