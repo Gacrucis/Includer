@@ -47,10 +47,10 @@ def main():
 
         for group in subjects[code].groups.values():
 
-            ws.cell(row, room_col).value = group.rooms[0] if len(group.rooms) > 1 else 'NULL'
+            ws.cell(row, room_col).value = group.rooms[0] if len(group.rooms) >= 1 else 'NULL'
             ws.cell(row, code_col).value = group.code
             ws.cell(row, capacity_col).value = group.capacity
-            ws.cell(row, teacher_col).value = group.teachers[0] if len(group.teachers) > 1 else 'NULL'
+            ws.cell(row, teacher_col).value = group.teachers[0] if len(group.teachers) >= 1 else 'NULL'
             ws.cell(row, schedule_col).value = str(group.schedule)
             ws.cell(row, subject_col).value = group.subject.code
 
