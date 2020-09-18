@@ -1,6 +1,7 @@
 import openpyxl as xl
 import psycopg2 as pc
 
+import random
 
 class DataBase():
     def __init__(self):
@@ -20,31 +21,40 @@ class DataBase():
     def init_files(self):
 
         self.sheets = {}
-        self.simple_sheets = [
-            'Sexo',
-            'TipoCarrera',
-            'TipoIdentificacion',
-            'TipoDeuda',
-            'TipoAsignatura',
-            'DiaSemana',
-            'Direccion',
-            'Edificio',
-            'Escuelas',
-            'EstadoAsignatura',
-            'Facultad',
-            'PlanEstudios',
-            'Carreras',
-        ]
+        # self.simple_sheets = [
+        #     'Sexo',
+        #     'TipoCarrera',
+        #     'TipoIdentificacion',
+        #     'TipoDeuda',
+        #     'TipoAsignatura',
+        #     'DiaSemana',
+        #     'Direccion',
+        #     'Edificio',
+        #     'Escuelas',
+        #     'EstadoAsignatura',
+        #     'Facultad',
+        #     'PlanEstudios',
+        #     'Carreras',
+        # ]
 
-        for sheet in self.simple_sheets:
+        # for sheet in self.simple_sheets:
 
-            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
+        #     self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
 
-        print(self.sheets)
+        # print(self.sheets)
 
         # More complex tables
 
-        # self.
+        self.complex_sheets = [
+            'Franja',
+            'Grupo',
+            'Asignatura',
+            'Edificio'
+        ]
+
+        for sheet in self.complex_sheets:
+
+            self.sheets[sheet] = xl.load_workbook(f'files/{sheet}.xlsx').active
     
 
     def __del__(self):
@@ -54,7 +64,7 @@ class DataBase():
         self.db.close()
 
     def gestioner(self):
-        """ call funcitons """
+        """ call functions """
         # self.add_sexo()
         # self.add_tipo_carrera()
         # self.add_tipo_identificacion()
@@ -66,8 +76,11 @@ class DataBase():
         # self.add_escuela()
         # self.add_estado_asignatura()
         # self.add_facultad()
-        self.add_plan_estudios()
+        # self.add_plan_estudios()
         # self.add_carreras()
+        
+        self.add_rooms()
+        
 
     def add_sexo(self):
         structure = f"""
@@ -186,6 +199,95 @@ class DataBase():
 
         for index, query in enumerate(queries):
             print(f"[{index}] -> {query}")
+    
+    def add_fromlist(self, structure, nestedlist):
+
+        queries = []
+
+        for elements in nestedlist:
+
+            query = structure
+
+            for attr in elements:
+
+                query = query.replace('?', str(attr), 1)
+            
+            if not ';' in query:
+                query += ';'
+            
+            queries.append(query)
+        
+        # for index, query in enumerate(queries):
+        #     print(f"[{index}] -> {query}")
+        
+        return queries
+
+
+    
+    def add_rooms(self):
+
+        structure = f"""
+            INSERT INTO Salon (salon_id, codigo, capacidad, edificio_fk)
+            VALUES (?, ?, ?, ?)
+        """
+        
+        groups_sheet = self.sheets['Grupo']
+        buildings_sheet = self.sheets['Edificio']
+
+        buildings = {}
+
+        for row in buildings_sheet.iter_rows(min_row=2):
+
+            building_id = row[0].value
+
+            if building_id is None:
+                continue
+
+            building_name = (row[1].value).upper()
+
+            buildings.setdefault(building_name, int(building_id))
+            
+
+        self.room_queries = []
+
+        current_id = 0
+
+        unique_ids = set()
+
+        for row in groups_sheet.iter_rows(min_row=2):
+
+            room_code = str(row[5].value).split(' ')[1].strip()
+            room_capacity = int(row[2].value)
+
+            try:
+
+                room_building = buildings[str(row[4].value).upper()]
+            
+            except KeyError as e:
+
+                room_building = random.randint(1, 20)
+
+            room_uniqueid = f'{room_building}{room_code}'
+
+            if room_uniqueid not in unique_ids:
+                self.room_queries.append([
+                    current_id,
+                    room_code,
+                    room_capacity,
+                    room_building
+                ])
+            
+            else:
+                unique_ids.add(room_uniqueid)
+        
+        queries = self.add_fromlist(structure, self.room_queries)
+
+        with open('out.txt', 'w') as f:
+
+            for query in queries:
+
+                f.write(str(query) + '\n')
+
 
 
 def main():
