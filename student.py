@@ -8,9 +8,10 @@ from data import man_names as men
 from data import woman_names as women
 from data import departamentos
 
-NUM_STUDENTS = 1300
+NUM_STUDENTS = 1000
 NUM_GRADES = 1000
 NUM_DEBTS = 2000
+
 
 class Personer():
     def __init__(self, amount, wb, address_sheet_name='address.xlsx'):
@@ -104,23 +105,9 @@ class Personer():
         if not sheet:
             sheet = self.sheet
 
-        men_names = random.sample(men, int(np.ceil(2 * self.amount / 3)))
-        men_names = [(name, 1) for name in men_names]
-        women_names = random.sample(women, int(np.ceil(self.amount / 3)))
-        women_names = [(name, 2) for name in women_names]
-
-        # join lists
-        names = men_names + women_names
-        random.shuffle(names)
-
-        # last_letter = get_column_letter(len(fields))
-        # last_cell_coord = last_letter + str(self.amount + 1)
         for i in range(self.amount):
             data = self.create_person()
             self.add(data, sheet)
-            # for attr, cell in zip(self.attrs, row):
-            # cell.value = data[attr]
-            # cell.Alignment(horizontal = 'center')
 
     def create_address(self, direccion_id=None, calle=None, numero_a=None, numero_b=None, ciudad=None, departamento=None):
         data = {}
@@ -168,7 +155,7 @@ class Personer():
                     cell.alignment = Alignment(horizontal='center')
 
 
-def generate_grades(index, sheet,order, n=3, student_fk=None, asignatura_fk=None):
+def generate_grades(index, sheet, order, n=3, student_fk=None, asignatura_fk=None):
 
     for i in range(1, n+1):
         data = []
@@ -202,6 +189,7 @@ def fill_grades(n, sheet):
         generate_grades(index, sheet, order)
         index += 3
 
+
 def generate_debts(sheet, description=None, tipo_deuda_fk=None, estudiante_fk=None):
     order = [
         'deuda_id',
@@ -216,7 +204,7 @@ def generate_debts(sheet, description=None, tipo_deuda_fk=None, estudiante_fk=No
         for header, cell in zip(order, row):
             cell.value = header
             cell.alignment = Alignment(horizontal='center')
-            
+
     for i in range(1, NUM_DEBTS + 1):
         data = []
         value = random.randint(1, 100000)
@@ -231,16 +219,80 @@ def generate_debts(sheet, description=None, tipo_deuda_fk=None, estudiante_fk=No
                 cell.alignment = Alignment(horizontal='center')
 
 
+class Studener():
+    def __init__(self, amount, wb):
+        self.amount = amount
+        self.id = 0
+        self.attrs = [
+            'estudiante_id',
+            'codigo',
+            'persona_fk',
+            'historial_fk'
+        ]
+        self.wb = wb
+        self.sheet = wb.active
+        self.init_sheets()
+
+    def __del__(self):
+        self.wb.save('Estudiante.xlsx')
+        # self.address_wb.save('Direccion.xlsx')
+
+    def init_sheets(self):
+        max_col = len(self.attrs)
+
+        for row in self.sheet.iter_rows(min_col=1, max_col=max_col):
+            for header, cell in zip(self.attrs, row):
+                cell.value = header
+                cell.alignment = Alignment(horizontal='center')
+
+        self.persona_sheet = openpyxl.load_workbook('Persona.xlsx').active
+
+    def create_student(self, estudiante_id=None, codigo=None, persona_fk=None, historial_fk=None):
+        data = []
+        self.id += 1
+        if estudiante_id:
+            data.append(estudiante_id)
+        else:
+            data.append(self.id)
+        if not codigo:
+            codigo = '2' + str(random.randint(10, 21)) + \
+                str(random.randint(0, 9999)).zfill(4)
+            data.append(codigo)
+        if not persona_fk:
+            persona_fk = self.persona_sheet[f'A{self.id + 1}'].value
+            data.append(persona_fk)
+        data.append(None)  # historial_fk
+        return data
+
+    def fill_students(self, sheet=None):
+        if not sheet:
+            sheet = self.sheet
+
+        for i in range(self.amount):
+            data = self.create_student()
+            self.add(data, sheet)
+
+    def add(self, data, sheet):
+        letter = get_column_letter(len(data))
+        row = sheet.max_row + 1
+        for row in sheet[f"A{row}:{letter}{row}"]:
+            for value, cell in zip(data, row):
+                cell.value = str(value)
+                cell.alignment = Alignment(horizontal='center')
+
+
 def main():
     try:
-        wb = openpyxl.load_workbook('Debts.xlsx')
+        wb = openpyxl.load_workbook('Estudiante.xlsx')
     except FileNotFoundError:
         wb = openpyxl.Workbook()
     ws = wb.active
     # pepe = Personer(NUM_STUDENTS, wb)
     # fill_grades(NUM_GRADES, ws)
-    generate_debts(ws)
-    wb.save('Debts.xlsx')
+    pepe = Studener(NUM_STUDENTS, wb)
+    pepe.fill_students()
+    # generate_debts(ws)
+    # wb.save('Estudiante.xlsx')
 
 
 if __name__ == "__main__":
