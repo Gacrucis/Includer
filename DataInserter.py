@@ -102,7 +102,7 @@ class DataBase():
         
         self.add_rooms()
         self.add_groups()
-        # self.add_shifts()
+        self.add_shifts()
         
 
     def add_sexo(self):
@@ -313,66 +313,7 @@ class DataBase():
             for query in queries:
 
                 f.write(str(query) + '\n')
-    
-    def add_shifts(self):
 
-        structure = f"""
-            INSERT INTO Franja (franja_id, hora_inicio, hora_fin, salon_fk, grupo_fk, dia_semana_fk)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """
-
-        shifts_sheet = self.sheets['Franja']
-
-        self.shift_queries = []
-
-        self.shift_sync = {}
-
-        current_id = 1
-
-        for row in shifts_sheet.iter_rows(min_row=2):
-
-            raw_building = str(row[5].value).upper().strip()
-
-            try:
-                building_num = self.buildings[raw_building]
-            
-            except KeyError:
-                continue
-
-            room_code = str(row[6].value).split(' ')[1].strip()
-                
-            room_uniqueid = f'{building_num}{room_code}'
-
-            try:
-                building_fk = self.room_sync[room_uniqueid]
-
-            except KeyError:
-                continue
-
-            start_hour = int(row[0].value)
-            end_hour = int(row[1].value)
-            weekday_num = self.weekdays.index(str(row[2].value).strip().upper())+1
-
-            self.shift_queries.append([
-                current_id,
-                start_hour,
-                end_hour,
-                building_fk,
-                None,
-                weekday_num
-            ])
-
-            current_id += 1
-            
-            # TBA
-
-            queries = self.add_fromlist(structure, self.shift_queries)
-
-            with open('shifts.txt', 'w') as f:
-
-                for query in queries:
-
-                    f.write(str(query) + '\n')
     
     def add_groups(self):
 
@@ -425,6 +366,8 @@ class DataBase():
                 group_teacher_fk
             ])
 
+            current_id += 1
+
         queries = self.add_fromlist(structure, self.group_queries)
         
         with open('groups.txt', 'w') as f:
@@ -432,6 +375,72 @@ class DataBase():
             for query in queries:
 
                 f.write(str(query) + '\n')
+    
+
+    def add_shifts(self):
+
+        structure = f"""
+            INSERT INTO Franja (franja_id, hora_inicio, hora_fin, salon_fk, grupo_fk, dia_semana_fk)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+
+        shifts_sheet = self.sheets['Franja']
+
+        self.shift_queries = []
+
+        current_id = 1
+
+        for row in shifts_sheet.iter_rows(min_row=2):
+
+            raw_building = str(row[5].value).upper().strip()
+
+            try:
+                building_num = self.buildings[raw_building]
+            
+            except KeyError:
+                continue
+
+            room_code = str(row[6].value).split(' ')[1].strip()
+                
+            room_uniqueid = f'{building_num}{room_code}'
+
+            try:
+                building_fk = self.room_sync[room_uniqueid]
+
+            except KeyError:
+                continue
+
+            start_hour = int(row[0].value)
+            end_hour = int(row[1].value)
+            weekday_num = self.weekdays.index(str(row[2].value).strip().upper()) + 1
+            
+            group_code = row[3].value
+            subject_code = row[4].value
+
+            group_identifier = f'{subject_code}{group_code}'
+            group_fk = self.shift_sync.get(group_identifier, random.randint(1, 200))
+
+
+            self.shift_queries.append([
+                current_id,
+                start_hour,
+                end_hour,
+                building_fk,
+                group_fk,
+                weekday_num
+            ])
+
+            current_id += 1
+            
+            # TBA
+
+            queries = self.add_fromlist(structure, self.shift_queries)
+
+            with open('shifts.txt', 'w') as f:
+
+                for query in queries:
+
+                    f.write(str(query) + '\n')
 
 
 
