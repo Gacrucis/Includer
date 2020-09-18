@@ -315,15 +315,15 @@ def fill_deuda(sheet):
 
     output_wb.save('test\Deuda.xlsx')
 
-def fill_history(sheet):
-    output_wb = xl.Workbook()
-    output_sheet = output_wb.active
-    headers = ['historial_id',
-               'estudiante_fk',
-               'tipo_asignatura_fk',
-               'estado_asignatura_fk']
-    set_headers(headers, output_sheet)
-    for index, cell in enumerate(sheet['A'][1:], 1):
+# def fill_history(sheet):
+#     output_wb = xl.Workbook()
+#     output_sheet = output_wb.active
+#     headers = ['historial_id',
+#                'estudiante_fk',
+#                'tipo_asignatura_fk',
+#                'estado_asignatura_fk']
+#     set_headers(headers, output_sheet)
+#     for index, cell in enumerate(sheet['A'][1:], 1):
 
 
 

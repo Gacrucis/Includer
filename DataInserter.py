@@ -54,7 +54,7 @@ class DataBase():
             'AsignaturaPlan'
         ]
 
-        for sheet in self.simple_sheets:
+        # for sheet in self.simple_sheets:
 
             self.sheets[sheet] = xl.load_workbook(f'files\{sheet}.xlsx').active
 
@@ -155,11 +155,11 @@ class DataBase():
     def add_tipo_asignatura(self):
         structure = f"""
             INSERT INTO TipoAsignatura (tipo_asignatura_id, descripcion)
-            VALUES (?, ?)
+            VALUES (?, '?')
         """
         queries = self.add(structure, self.sheets['TipoAsignatura'])
 
-        self.to_text(queries, 'Carrera.sql')
+        self.to_text(queries, 'TipoAsignatura.sql')
 
     def add_dia_semana(self):
         structure = f"""
@@ -200,7 +200,7 @@ class DataBase():
     def add_estado_asignatura(self):
         structure = f"""
             INSERT INTO EstadoAsignatura (estado_asignatura_id, descripcion)
-            VALUES (?, ?)
+            VALUES (?, '?')
         """
         queries = self.add(structure, self.sheets['EstadoAsignatura'])
 
@@ -220,7 +220,7 @@ class DataBase():
             INSERT INTO PlanEstudios (plan_estudios_id, numero_plan, carrera_fk)
             VALUES (?, ?, ?)
         """
-        queries = self.add(structure, self.sheets['PlanEstudios'])
+        queries = self.add(structure, self.sheets['PlanEstudio'])
 
         self.to_text(queries, 'PlanEstudios.sql')
 
@@ -229,7 +229,7 @@ class DataBase():
             INSERT INTO Carrera (carrera_id, nombre, plan_actual, cantidad_semestres, escuela_fk, tipo_carrera_fk)
             VALUES (?, "?", ?, ?, ?, ?)
         """
-        queries = self.add(structure, self.sheets['Carreras'])
+        queries = self.add(structure, self.sheets['Carrera'])
 
         self.to_text(queries, 'Carrera.sql')
 
