@@ -7,6 +7,9 @@ import datetime
 from AcademicObjects import Subject, Group
 from IncludingObjects import Schedule
 from AppUtils import Logger
+import data
+
+import pickle
 
 GROUP_PATH_PREFIX = 'Group_'
 SUBJECT_PATH_PREFIX = 'Subject__'
@@ -22,12 +25,26 @@ def main():
 
     codes = [20255, 22957, 22958, 22959]
     # codes = [22959]
+
+    codes = set(data.codes)
+    print(len(codes))
+
     subjects = {}
 
-    for code in codes:
-        subject = Subject(code)
+    # for code in codes:
 
-        subjects[code] = subject
+    #     try:
+
+    #         subject = Subject(code)
+    #         subjects[code] = subject
+        
+    #     except Exception as e:
+    #         continue
+
+    # file_subj = open('asignaturas.obj', 'wb')
+    # pickle.dump(subjects, file_subj)
+
+    subjects = pickle.load(open('asignaturas.obj', 'rb'))
 
     group_labels = [
         'codigo',
@@ -112,6 +129,9 @@ def main():
             for weekday, shift in group.schedule.items():
 
                 shift_info = []
+
+                if len(shift) < 2:
+                    shift = (shift[0], shift[0]+1)
 
                 shift_info.extend([
                     shift[0],
