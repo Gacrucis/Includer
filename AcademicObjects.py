@@ -15,15 +15,15 @@ class Subject:
         self.code = str(subject_code)
 
         print()
-        Logger.course_log(f"Detectando asignatura de codigo : {self.code}")
+        Logger.log_course(f"Detectando asignatura de codigo : {self.code}")
 
         self.html_lines = self.get_subjectHTML()
 
-        Logger.info_log("Asignatura detectada!")
+        Logger.log_info("Asignatura detectada!")
 
         self.name = str(self.html_lines[45]).strip()
 
-        Logger.info_log(f"Nombre de la asignatura [{self.code}] : {self.name}")
+        Logger.log_info(f"Nombre de la asignatura [{self.code}] : {self.name}")
 
         self.groups = {}
 
@@ -47,7 +47,7 @@ class Subject:
         # Se descubrio que si existe un parametro invalido, la respuesta del
         # servidor sera menor a 60 lineas de HTML
         if len(html) < 60:
-            Logger.error_log(f"Asignatura {self.code} no detectada")
+            Logger.log_error(f"Asignatura {self.code} no detectada")
             raise InvalidSubjectCode()
 
         return html
@@ -55,7 +55,7 @@ class Subject:
     def import_groups(self, logging=1):
 
         if logging:
-            Logger.course_log(f"Obteniendo grupos de {self.name} . . .")
+            Logger.log_course(f"Obteniendo grupos de {self.name} . . .")
 
         tasks = []
         loop = asyncio.get_event_loop()
@@ -67,7 +67,7 @@ class Subject:
                 group_code = line[7:]
 
                 if logging > 1:
-                    Logger.info_log(
+                    Logger.log_info(
                         f"Grupo de {self.name} detectado: {group_code}")
 
                 group_capacity = int(str(self.html_lines[index + 13]).strip())
@@ -81,7 +81,7 @@ class Subject:
             index += 1
 
         if logging:
-            imported_groups = Logger.animated_course_log(
+            imported_groups = Logger.log_animated_course(
                 f'Importando informacion de {len(tasks)} grupos',
                 loop.run_until_complete,
                 asyncio.gather(*tasks)
@@ -98,12 +98,12 @@ class Subject:
     def import_group(self, group_code, duplicate=False, logging=0):
 
         if logging:
-            Logger.course_log(
+            Logger.log_course(
                 f"Obteniendo grupo {group_code} de {self.name} . . .")
 
         if not duplicate and self.groups[group_code]:
             if logging:
-                Logger.info_log(
+                Logger.log_info(
                     f"Grupo de {self.name} duplicado: {group_code}")
             return self.groups[group_code]
 
@@ -118,16 +118,16 @@ class Subject:
                 current_group_code = line[7:]
 
                 if logging:
-                    Logger.info_log(
+                    Logger.log_info(
                         f"Grupo de {self.name} detectado: {group_code}")
-                    Logger.course_log(
+                    Logger.log_course(
                         f"[{group_code}] Detectando información . . .")
 
                 group_capacity = int(str(self.html_lines[index + 13]).strip())
                 group_students = int(str(self.html_lines[index + 20]).strip())
 
                 if logging:
-                    Logger.info_log(
+                    Logger.log_info(
                         f"[{group_code}] Capacidad : {group_capacity} -- Matriculados: {group_students}")
 
                 if current_group_code == group_code:
@@ -145,7 +145,7 @@ class Subject:
         if group_code in self.groups:
             return self.groups[group_code]
 
-        Logger.error_log(f'Grupo {group_code} no encontrado')
+        Logger.log_error(f'Grupo {group_code} no encontrado')
         return None
 
     def create_database(self, path):
@@ -176,7 +176,7 @@ class Group:
         if student_quantity >= capacity:
             self.is_full = True
             if logging:
-                Logger.info_log(f"[{self.code}] Grupo lleno!")
+                Logger.log_info(f"[{self.code}] Grupo lleno!")
         else:
             self.is_full = False
 
@@ -193,7 +193,7 @@ class Group:
         self.schedule = self._parse_raw_schedule()
 
         if logging:
-            Logger.info_log(f"[{self.code}] Horario: {self.schedule}")
+            Logger.log_info(f"[{self.code}] Horario: {self.schedule}")
 
     def _get_html(self):
 
@@ -233,7 +233,7 @@ class Group:
         teachers = list(dict.fromkeys(teachers))
 
         if logging:
-            Logger.info_log(f"[{self.code}] Profesores: {teachers}")
+            Logger.log_info(f"[{self.code}] Profesores: {teachers}")
 
         return teachers
 
@@ -283,7 +283,7 @@ class Group:
         rooms = list(dict.fromkeys(rooms))
 
         # if logging:
-        #     Logger.info_log(f"[{self.code}] Profesores: {rooms}")
+        #     Logger.log_info(f"[{self.code}] Profesores: {rooms}")
 
         return rooms
 

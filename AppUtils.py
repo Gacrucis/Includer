@@ -1,9 +1,13 @@
 import os
+from os import write
 import sys
 import time
+import datetime
 import threading
-import configparser as cp
 import traceback
+import pyexcel
+
+import openpyxl
 
 
 class Logger:
@@ -11,7 +15,7 @@ class Logger:
     # de debug, de la misma manera permite un facil apagado de este logging si se
     # reemplazan las funciones con la keyword pass
 
-    tags = ["[INFO]", "[IN PROGRESS]", "[ERROR]"]
+    tags = ["[INFO]", "[IN PROGRESS]", "[ERROR]", '[SUCCESS]', '[FAIL]']
 
     # Encuentra el tag mas largo y cuenta su largo para alinear el logging
     longest_tag_lenght = len(max(tags, key=len))
@@ -20,31 +24,71 @@ class Logger:
     for i, tag in enumerate(tags):
         tags[i] = tag.rjust(longest_tag_lenght)
 
-    infoTag = tags[0]
-    courseTag = tags[1]
-    errorTag = tags[2]
+    info_tag = tags[0]
+    course_tag = tags[1]
+    error_tag = tags[2]
+    success_tag = tags[3]
+    fail_tag = tags[4]
+
+    write_file = open('logger.txt', 'a')
 
     @staticmethod
-    def info_log(string):
-        print(f"{Logger.infoTag} {string}")
+    def log_info(string):
+        log_str = f"[{datetime.datetime.now()}] {Logger.info_tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.flush()
 
     @staticmethod
-    def course_log(string):
-        print(f"{Logger.courseTag} {string} . . .")
+    def log_course(string):
+        log_str = f"[{datetime.datetime.now()}] {Logger.course_tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
 
     @staticmethod
-    def error_log(string):
-        print(f"{Logger.errorTag} {string}")
+    def log_error(string):
+        log_str = f"[{datetime.datetime.now()}] {Logger.error_tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
 
     @staticmethod
-    def custom_log(tag, string):
+    def log_success(string):
+        log_str = f"[{datetime.datetime.now()}] {Logger.success_tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
+
+    @staticmethod
+    def log_fail(string):
+        log_str = f"[{datetime.datetime.now()}] {Logger.fail_tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
+
+    @staticmethod
+    def log_custom(tag, string):
         tag = tag.rjust(Logger.longest_tag_lenght)
-        print(f"{tag} {string}")
+
+        log_str = f"[{datetime.datetime.now()}] {tag} {string}"
+        print(log_str)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
 
     @staticmethod
-    def animated_course_log(string, callback, *args, **kwargs):
+    def log_animated_course(string, callback, *args, **kwargs):
 
-        print(f"{Logger.courseTag} {string} . . . ", end=' ')
+        log_str = f"[{datetime.datetime.now()}] {Logger.course_tag} {string} . . . "
+
+        print(log_str, end=' ')
         spinner = SpinnerThread()
         spinner.start()
 
@@ -56,6 +100,10 @@ class Logger:
             error_state = 1
 
         spinner.stop(error_state=error_state)
+
+        if Logger.write_file is not None:
+            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.flush()
 
         if error_state:
             print()
@@ -98,44 +146,51 @@ class SpinnerThread(threading.Thread):
                 i = 0
 
 
-class AppConfig(cp.ConfigParser):
+def convert_to_xlsx(name, timeout=10):
 
-    default_path = 'config.ini'
+    total_time = 0
 
-    default_db_folder = 'databases'
-    default_logging_mode = '1'
-    default_caching_mode = '1'
+    while not os.path.exists(f"{name}.xls") and total_time <= timeout:
+        time.sleep(0.1)
+        total_time += 0.1
 
-    def __init__(self, path=default_path):
-        super().__init__()
-
-        if os.path.exists(path):
-            self.read(path)
-        else:
-            self.set_defaults()
-            with open(path, 'w') as f:
-                self.write(f)
-
-    def set_defaults(self):
-
-        self['PATHS'] = {}
-        self['PATHS']['database_folder'] = AppConfig.default_db_folder
-
-        self['PREFERENCES'] = {}
-        self['PREFERENCES']['logging_mode'] = AppConfig.default_logging_mode
-        self['PREFERENCES']['caching_mode'] = AppConfig.default_caching_mode
-
-
-def check_table_exists(dbcon, tablename):
-    dbcur = dbcon.cursor()
-    dbcur.execute("""
-        SELECT COUNT(*)
-        FROM information_schema.tables
-        WHERE table_name = '{0}'
-        """.format(tablename.replace('\'', '\'\'')))
-    if dbcur.fetchone()[0] == 1:
-        dbcur.close()
+    if total_time <= timeout:
+        pyexcel.save_book_as(
+            file_name=f"{name}.xls", dest_file_name=f"{name}.xlsx")
         return True
+    else:
+        return False
 
-    dbcur.close()
-    return False
+
+def write_to_txt(file_name, element_list, write_mode="w"):
+
+    with open(file_name, write_mode) as f:
+
+        for element in element_list:
+            f.write(element + "\n")
+
+
+def read_from_txt(file_name):
+
+    with open(file_name, "r") as f:
+        student_codes = f.read().splitlines()
+
+    student_codes = [code for code in student_codes if code is not None]
+
+    return student_codes
+
+
+def format_excel_worksheet(worksheet, names, row=1):
+
+    for i, name in enumerate(names):
+
+        current_cell = worksheet.cell(row, i+1)
+
+        current_cell.value = name
+
+        worksheet.column_dimensions[openpyxl.utils.get_column_letter(
+            current_cell.column)].width = 30
+        current_cell.alignment = openpyxl.styles.Alignment(horizontal="center")
+        current_cell.font = openpyxl.styles.Font(name="consolas", bold=True)
+
+    return worksheet
