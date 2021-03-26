@@ -1,15 +1,12 @@
-import os
 import asyncio
 import urllib.request as ulib
 from mechanize import Browser
 import bs4 as bs
-import sqlite3 as sql
 from AppUtils import *
 from CustomExceptions import InvalidSubjectCode
 
 
 class Subject:
-
     def __init__(self, subject_code, import_groups=True, logging=1):
 
         self.code = str(subject_code)
@@ -34,13 +31,15 @@ class Subject:
 
         br = Browser()
         br.open(
-            "https://www.uis.edu.co/estudiantes/asignaturas_programadas/buscador.html")
+            "https://www.uis.edu.co/estudiantes/asignaturas_programadas/buscador.html"
+        )
         br.select_form(name="form1")  # pylint: disable=no-member
-        br.form['codigo'] = self.code  # pylint: disable=no-member
+        br.form["codigo"] = self.code  # pylint: disable=no-member
         br.submit()  # pylint: disable=no-member
 
-        soup = bs.BeautifulSoup(br.response().read(),
-                                "html.parser")  # pylint: disable=no-member
+        soup = bs.BeautifulSoup(
+            br.response().read(), "html.parser"
+        )  # pylint: disable=no-member
         soup = soup.prettify()
         html = soup.split("\n")
 
@@ -67,14 +66,14 @@ class Subject:
                 group_code = line[7:]
 
                 if logging > 1:
-                    Logger.log_info(
-                        f"Grupo de {self.name} detectado: {group_code}")
+                    Logger.log_info(f"Grupo de {self.name} detectado: {group_code}")
 
                 group_capacity = int(str(self.html_lines[index + 13]).strip())
                 group_students = int(str(self.html_lines[index + 20]).strip())
 
                 group_creator = loop.run_in_executor(
-                    None, Group, self, group_code, group_capacity, group_students, False)
+                    None, Group, self, group_code, group_capacity, group_students, False
+                )
                 tasks.append(group_creator)
 
                 index += 20
@@ -82,9 +81,9 @@ class Subject:
 
         if logging:
             imported_groups = Logger.log_animated_course(
-                f'Importando informacion de {len(tasks)} grupos',
+                f"Importando informacion de {len(tasks)} grupos",
                 loop.run_until_complete,
-                asyncio.gather(*tasks)
+                asyncio.gather(*tasks),
             )
 
         else:
@@ -98,13 +97,11 @@ class Subject:
     def import_group(self, group_code, duplicate=False, logging=0):
 
         if logging:
-            Logger.log_course(
-                f"Obteniendo grupo {group_code} de {self.name} . . .")
+            Logger.log_course(f"Obteniendo grupo {group_code} de {self.name} . . .")
 
         if not duplicate and self.groups[group_code]:
             if logging:
-                Logger.log_info(
-                    f"Grupo de {self.name} duplicado: {group_code}")
+                Logger.log_info(f"Grupo de {self.name} duplicado: {group_code}")
             return self.groups[group_code]
 
         index = 0
@@ -118,21 +115,25 @@ class Subject:
                 current_group_code = line[7:]
 
                 if logging:
-                    Logger.log_info(
-                        f"Grupo de {self.name} detectado: {group_code}")
-                    Logger.log_course(
-                        f"[{group_code}] Detectando información . . .")
+                    Logger.log_info(f"Grupo de {self.name} detectado: {group_code}")
+                    Logger.log_course(f"[{group_code}] Detectando información . . .")
 
                 group_capacity = int(str(self.html_lines[index + 13]).strip())
                 group_students = int(str(self.html_lines[index + 20]).strip())
 
                 if logging:
                     Logger.log_info(
-                        f"[{group_code}] Capacidad : {group_capacity} -- Matriculados: {group_students}")
+                        f"[{group_code}] Capacidad : {group_capacity} -- Matriculados: {group_students}"
+                    )
 
                 if current_group_code == group_code:
-                    group = Group(self,  group_code, group_capacity,
-                                  group_students, logging=logging)
+                    group = Group(
+                        self,
+                        group_code,
+                        group_capacity,
+                        group_students,
+                        logging=logging,
+                    )
                     self.groups[group_code] = group
                     return group
 
@@ -145,13 +146,14 @@ class Subject:
         if group_code in self.groups:
             return self.groups[group_code]
 
-        Logger.log_error(f'Grupo {group_code} no encontrado')
+        Logger.log_error(f"Grupo {group_code} no encontrado")
         return None
 
 
 class Group:
-
-    def __init__(self, subject, group_code, capacity: int, student_quantity: int, logging=1):
+    def __init__(
+        self, subject, group_code, capacity: int, student_quantity: int, logging=1
+    ):
 
         self.subject = subject
         self.code = group_code
@@ -170,7 +172,7 @@ class Group:
         self.rooms = self._get_rooms()
 
         try:
-            self.capacity_index = round(capacity/student_quantity, 2)
+            self.capacity_index = round(capacity / student_quantity, 2)
         except:
             self.capacity_index = 99
 
@@ -185,7 +187,7 @@ class Group:
         # El link debajo es la base para obtener la informacion del grupo.
         # Para ello se usa web scraping en el link designado para el grupo
         # obtenido con el codigo de asignatura y codigo de grupo
-        custom_link = f'https://www.uis.edu.co/estudiantes/asignaturas_programadas/horario_asignatura.jsp?codigo={self.subject.code}&grupo={self.code}&nombre=Gamma'
+        custom_link = f"https://www.uis.edu.co/estudiantes/asignaturas_programadas/horario_asignatura.jsp?codigo={self.subject.code}&grupo={self.code}&nombre=Gamma"
 
         group_info = ulib.urlopen(custom_link).read()
         group_soup = bs.BeautifulSoup(group_info, "html.parser")
@@ -260,7 +262,7 @@ class Group:
                 # valido en la variable room
 
                 if "<" not in room:
-                    rooms.append(' '.join(room.strip().split()))
+                    rooms.append(" ".join(room.strip().split()))
 
             line_index += 1
 
@@ -282,13 +284,13 @@ class Group:
 
             for lesson in self.raw_schedule[day]:
                 lesson_hours = lesson
-                lesson_hour_data = [int(hour.strip())
-                                    for hour in lesson_hours.split('-')]
+                lesson_hour_data = [
+                    int(hour.strip()) for hour in lesson_hours.split("-")
+                ]
                 lesson_start_hour = lesson_hour_data[0]
                 lesson_finish_hour = lesson_hour_data[1]
 
-                schedule[day].extend(
-                    list(range(lesson_start_hour, lesson_finish_hour)))
+                schedule[day].extend(list(range(lesson_start_hour, lesson_finish_hour)))
 
         return schedule
 
@@ -296,9 +298,11 @@ class Group:
     # con colores, sin embargo parece no funcionar bien en la consola de Windows
     def pretty_print(self):
 
-        group_info = F"Grupo: [{self.code}] // #: {self.student_quantity} !: {self.capacity}"
-        group_teachers = F"Profesores: {self.teachers} IB: {self.capacity_index}"
-        formatted_string = F"{group_info}\n{group_teachers}"
+        group_info = (
+            f"Grupo: [{self.code}] // #: {self.student_quantity} !: {self.capacity}"
+        )
+        group_teachers = f"Profesores: {self.teachers} IB: {self.capacity_index}"
+        formatted_string = f"{group_info}\n{group_teachers}"
 
         if self.is_full:
             formatted_string = bcolors.FAIL + formatted_string + bcolors.ENDC
@@ -306,28 +310,32 @@ class Group:
         print(formatted_string)
 
     def get_schedule_representation(self):
-        return f'{self.subject.code} {self.code}'
+        return f"{self.subject.code} {self.code}"
 
     # Este es el formato que se usa en el archivo de texto creado para la asignatura
     def __repr__(self):
 
-        group_info = F"Grupo: [{self.code}] // #: {self.student_quantity} !: {self.capacity}"
-        group_teachers = F"Profesores: {self.teachers} IB: {self.capacity_index}"
-        group_schedule = F"Horario: {self.raw_schedule}"
-        formatted_string = F"{group_info}\n{group_teachers}\n{group_schedule}\n"
+        group_info = (
+            f"Grupo: [{self.code}] // #: {self.student_quantity} !: {self.capacity}"
+        )
+        group_teachers = f"Profesores: {self.teachers} IB: {self.capacity_index}"
+        group_schedule = f"Horario: {self.raw_schedule}"
+        formatted_string = f"{group_info}\n{group_teachers}\n{group_schedule}\n"
 
         if self.is_full:
-            formatted_string = formatted_string + "||||||||||||||||||||||||||||||||||||||||"
+            formatted_string = (
+                formatted_string + "||||||||||||||||||||||||||||||||||||||||"
+            )
 
         return formatted_string
 
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"

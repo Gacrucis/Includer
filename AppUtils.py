@@ -1,13 +1,7 @@
-import os
-from os import write
 import sys
 import time
 import datetime
 import threading
-import traceback
-import pyexcel
-
-import openpyxl
 
 
 class Logger:
@@ -15,7 +9,7 @@ class Logger:
     # de debug, de la misma manera permite un facil apagado de este logging si se
     # reemplazan las funciones con la keyword pass
 
-    tags = ["[INFO]", "[IN PROGRESS]", "[ERROR]", '[SUCCESS]', '[FAIL]']
+    tags = ["[INFO]", "[IN PROGRESS]", "[ERROR]", "[SUCCESS]", "[FAIL]"]
 
     # Encuentra el tag mas largo y cuenta su largo para alinear el logging
     longest_tag_lenght = len(max(tags, key=len))
@@ -30,7 +24,7 @@ class Logger:
     success_tag = tags[3]
     fail_tag = tags[4]
 
-    write_file = open('logger.txt', 'a')
+    write_file = open("logger.txt", "a")
 
     @staticmethod
     def log_info(string):
@@ -38,7 +32,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
             Logger.write_file.flush()
 
     @staticmethod
@@ -47,7 +41,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
 
     @staticmethod
     def log_error(string):
@@ -55,7 +49,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
 
     @staticmethod
     def log_success(string):
@@ -63,7 +57,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
 
     @staticmethod
     def log_fail(string):
@@ -71,7 +65,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
 
     @staticmethod
     def log_custom(tag, string):
@@ -81,7 +75,7 @@ class Logger:
         print(log_str)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
 
     @staticmethod
     def log_animated_course(string, callback, *args, **kwargs):
@@ -91,7 +85,7 @@ class Logger:
 
         log_str = f"[{datetime.datetime.now()}] {Logger.course_tag} {string} . . . "
 
-        print(log_str, end=' ')
+        print(log_str, end=" ")
         spinner = SpinnerThread()
         spinner.start()
 
@@ -105,7 +99,7 @@ class Logger:
         spinner.stop(error_state=error_state)
 
         if Logger.write_file is not None:
-            Logger.write_file.write(log_str + '\n')
+            Logger.write_file.write(log_str + "\n")
             Logger.write_file.flush()
 
         if error_state:
@@ -118,7 +112,6 @@ class Logger:
 
 
 class SpinnerThread(threading.Thread):
-
     def __init__(self):
         super().__init__(target=self._spin)
         self._stopevent = threading.Event()
@@ -126,74 +119,74 @@ class SpinnerThread(threading.Thread):
     def stop(self, error_state=0):
         self._stopevent.set()
 
-        sys.stdout.write('\b')
+        sys.stdout.write("\b")
 
         if not error_state:
-            sys.stdout.write('Hecho!')
+            sys.stdout.write("Hecho!")
         else:
-            sys.stdout.write('Error!')
+            sys.stdout.write("Error!")
 
     def _spin(self):
 
         i = 0
-        spinner = '|/-\\'
+        spinner = "|/-\\"
 
         while not self._stopevent.isSet():
             t = spinner[i]
             sys.stdout.write(t)
             sys.stdout.flush()
             time.sleep(0.1)
-            sys.stdout.write('\b')
+            sys.stdout.write("\b")
             i += 1
             if i > 3:
                 i = 0
 
 
-def convert_to_xlsx(name, timeout=10):
+# def convert_to_xlsx(name, timeout=10):
 
-    total_time = 0
+#     total_time = 0
 
-    while not os.path.exists(f"{name}.xls") and total_time <= timeout:
-        time.sleep(0.1)
-        total_time += 0.1
+#     while not os.path.exists(f"{name}.xls") and total_time <= timeout:
+#         time.sleep(0.1)
+#         total_time += 0.1
 
-    if total_time <= timeout:
-        pyexcel.save_book_as(
-            file_name=f"{name}.xls", dest_file_name=f"{name}.xlsx")
-        return True
-    else:
-        return False
-
-
-def write_to_txt(file_name, element_list, write_mode="w"):
-
-    with open(file_name, write_mode) as f:
-
-        for element in element_list:
-            f.write(element + "\n")
+#     if total_time <= timeout:
+#         pyexcel.save_book_as(
+#             file_name=f"{name}.xls", dest_file_name=f"{name}.xlsx")
+#         return True
+#     else:
+#         return False
 
 
-def read_from_txt(file_name):
+# def write_to_txt(file_name, element_list, write_mode="w"):
 
-    with open(file_name, "r") as f:
-        student_codes = f.read().splitlines()
+#     with open(file_name, write_mode) as f:
 
-    student_codes = [code for code in student_codes if code is not None]
-
-    return student_codes
+#         for element in element_list:
+#             f.write(element + "\n")
 
 
-def format_excel_worksheet(worksheet, names, row=1):
+# def read_from_txt(file_name):
 
-    for i, name in enumerate(names):
+#     with open(file_name, "r") as f:
+#         student_codes = f.read().splitlines()
 
-        current_cell = worksheet.cell(row, i+1)
+#     student_codes = [code for code in student_codes if code is not None]
 
-        current_cell.value = name
+#     return student_codes
 
-        worksheet.column_dimensions[openpyxl.utils.get_column_letter(
-            current_cell.column)].width = 30
-        current_cell.alignment = openpyxl.styles.Alignment(horizontal="center")
-        current_cell.font = openpyxl.styles.Font(name="consolas", bold=True)
 
-    return worksheet
+# def format_excel_worksheet(worksheet, names, row=1):
+
+#     for i, name in enumerate(names):
+
+#         current_cell = worksheet.cell(row, i+1)
+
+#         current_cell.value = name
+
+#         worksheet.column_dimensions[openpyxl.utils.get_column_letter(
+#             current_cell.column)].width = 30
+#         current_cell.alignment = openpyxl.styles.Alignment(horizontal="center")
+#         current_cell.font = openpyxl.styles.Font(name="consolas", bold=True)
+
+#     return worksheet
