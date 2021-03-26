@@ -5,30 +5,39 @@ from AcademicObjects import Subject, Group
 from IncludingObjects import Schedule
 from AppUtils import Logger
 
-# codigos = [22956,22957,22958,22959]
-codigos = [22960, 22961, 22962, 22963, 23426]
-# codigos = [22958]
+# codigos = [22960, 22961, 22962, 22963, 23426]
 
 horario = Schedule()
 
-databases = Subject(22960)
-horario.add_group(databases.import_group('H1'))
+stats = Subject(21857)
+horario.add_group(stats.import_group("D1"))
 
-digital = Subject(22961)
-horario.add_group(digital.import_group('B1'))
+web_1 = Subject(22965)
+horario.add_group(web_1.import_group("F1"))
 
-numbers = Subject(22962)
-horario.add_group(numbers.import_group('B1'))
+architecture = Subject(22966)
+horario.add_group(architecture.import_group("A2"))
 
-systems = Subject(22963)
-horario.add_group(systems.import_group('D1'))
+web_programming = Subject(22967)
+horario.add_group(web_programming.import_group("J1"))
 
-english = Subject(23426)
-horario.add_group(english.import_group('A02'))
+info_systems = Subject(22968)
+horario.add_group(info_systems.import_group("H1"))
+
+english = Subject(23057)
+horario.add_group(english.import_group("A02"))
 
 horario.pretty_print()
 
 alt_groups = horario.get_alternative_groups(english)
+valid_groups = []
+
+for group in alt_groups:
+
+    for hours in group.schedule.values():
+        print(hours)
+
+
 alt_codes = [group.code for group in alt_groups]
 alt_teachers = set()
 
@@ -40,6 +49,9 @@ alt_teachers = list(alt_teachers)
 
 print(alt_codes)
 print(alt_teachers)
+
+for group in alt_groups:
+    group.pretty_print()
 
 
 # teachers = horario.get_teachers()

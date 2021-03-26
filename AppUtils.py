@@ -86,6 +86,9 @@ class Logger:
     @staticmethod
     def log_animated_course(string, callback, *args, **kwargs):
 
+        exception = None
+        return_value = None
+
         log_str = f"[{datetime.datetime.now()}] {Logger.course_tag} {string} . . . "
 
         print(log_str, end=' ')
