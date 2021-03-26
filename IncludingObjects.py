@@ -4,16 +4,15 @@ from AppUtils import Logger
 
 
 class Schedule:
-
     def __init__(self):
 
         self.days = {}
-        self.days['LUNES'] = {hour: None for hour in range(0, 24)}
-        self.days['MARTES'] = {hour: None for hour in range(0, 24)}
-        self.days['MIERCOLES'] = {hour: None for hour in range(0, 24)}
-        self.days['JUEVES'] = {hour: None for hour in range(0, 24)}
-        self.days['VIERNES'] = {hour: None for hour in range(0, 24)}
-        self.days['SABADO'] = {hour: None for hour in range(0, 24)}
+        self.days["LUNES"] = {hour: None for hour in range(0, 24)}
+        self.days["MARTES"] = {hour: None for hour in range(0, 24)}
+        self.days["MIERCOLES"] = {hour: None for hour in range(0, 24)}
+        self.days["JUEVES"] = {hour: None for hour in range(0, 24)}
+        self.days["VIERNES"] = {hour: None for hour in range(0, 24)}
+        self.days["SABADO"] = {hour: None for hour in range(0, 24)}
 
         self.start_hour = 6
         self.finish_hour = 22
@@ -22,12 +21,11 @@ class Schedule:
         self.groups = {}
 
     def add_group(self, group, logging=True):
-        '''Adds a group to the schedule instance, if the group is not compatible it returns False,
-         otherwise, it returns True'''
+        """Adds a group to the schedule instance, if the group is not compatible it returns False,
+        otherwise, it returns True"""
 
         if logging:
-            Logger.log_course(
-                f'Agregando grupo {group.code} de {group.subject.name}')
+            Logger.log_course(f"Agregando grupo {group.code} de {group.subject.name}")
 
         temp_days = copy.deepcopy(self.days)
 
@@ -38,7 +36,7 @@ class Schedule:
                 if not self.check_schedule(day, hour):
 
                     if logging:
-                        Logger.log_error('Grupo no compatible')
+                        Logger.log_error("Grupo no compatible")
                     return False
 
                 temp_days[day][hour] = group
@@ -50,12 +48,12 @@ class Schedule:
         return True
 
     def remove_group(self, group, logging=True):
-        '''Removes a given Group object from the schedule instance, if the group is not valid it returns False,
-         otherwise, it returns True'''
+        """Removes a given Group object from the schedule instance, if the group is not valid it returns False,
+        otherwise, it returns True"""
 
         if not group:
             if logging:
-                Logger.log_error(f'Grupo no valido')
+                Logger.log_error(f"Grupo no valido")
             return False
 
         subject_codes = {subject.code for subject in self.subjects.values()}
@@ -65,12 +63,12 @@ class Schedule:
 
             if logging:
                 Logger.log_error(
-                    f'Grupo {group.code} de {group.subject.name} no encontrado')
+                    f"Grupo {group.code} de {group.subject.name} no encontrado"
+                )
             return False
 
         if logging:
-            Logger.log_course(
-                f'Removiendo grupo {group.code} de {group.subject.name}')
+            Logger.log_course(f"Removiendo grupo {group.code} de {group.subject.name}")
 
         for day in group.schedule:
 
@@ -84,8 +82,8 @@ class Schedule:
         return True
 
     def get_teachers(self):
-        '''Returns a dict with subject codes as keys and teacher lists as values 
-        as following: {subject_code : [teacher_1, teacher_2, . . .]}'''
+        """Returns a dict with subject codes as keys and teacher lists as values
+        as following: {subject_code : [teacher_1, teacher_2, . . .]}"""
 
         teachers = {}
 
@@ -99,7 +97,7 @@ class Schedule:
         return teachers
 
     def check_schedule(self, day, hour):
-        '''Returns True if the given day and hour are free'''
+        """Returns True if the given day and hour are free"""
 
         day = day.upper()
 
@@ -109,15 +107,14 @@ class Schedule:
         return True
 
     def get_compatible_groups(self, subject, allow_full=False, logging=True):
-        '''Returns a list of Group objects which are compatible with the
-        current schedule instance'''
+        """Returns a list of Group objects which are compatible with the
+        current schedule instance"""
 
         if str(subject).isdigit():
             subject = Subject(subject, logging=False)
 
         if logging:
-            Logger.log_course(
-                f'Detectando grupos compatibles de {subject.name}')
+            Logger.log_course(f"Detectando grupos compatibles de {subject.name}")
         compatible_groups = []
 
         for group in subject.groups.values():
@@ -149,64 +146,66 @@ class Schedule:
 
         if logging:
             Logger.log_course(
-                f'Detectando grupos que pueden reemplazar al {current_group_code} de {subject.name}')
+                f"Detectando grupos que pueden reemplazar al {current_group_code} de {subject.name}"
+            )
 
         schedule_copy.remove_group(current_group, logging=False)
 
         compatible_groups = schedule_copy.get_compatible_groups(
-            subject, allow_full=allow_full, logging=False)
+            subject, allow_full=allow_full, logging=False
+        )
         alternative_groups = [
-            group for group in compatible_groups if group.code != current_group_code]
+            group for group in compatible_groups if group.code != current_group_code
+        ]
         # alternative_groups = compatible_groups
 
         return alternative_groups
 
     def pretty_print(self):
-        '''Prints a formatted schedule'''
+        """Prints a formatted schedule"""
 
         print()
         justify_length = 13
 
         # Lineas separadoras verticales
-        print('-'*8, end='')
+        print("-" * 8, end="")
 
         for day in self.days:
-            print('-'*justify_length, end='')
+            print("-" * justify_length, end="")
         print()
 
         # Dias de la semana
-        print('HORA'.center(8), end='')
+        print("HORA".center(8), end="")
 
         for day in self.days:
-            print('|' + f'{day}'.center(justify_length-2) + '|', end='')
+            print("|" + f"{day}".center(justify_length - 2) + "|", end="")
         print()
 
         # Lineas separadoras verticales
-        print('-'*8, end='')
+        print("-" * 8, end="")
 
         for day in self.days:
-            print('-'*justify_length, end='')
+            print("-" * justify_length, end="")
         print()
 
         # Horario
         for hour in range(self.start_hour, self.finish_hour):
 
-            print(f'{hour} - {hour+1}'.center(8), end='')
+            print(f"{hour} - {hour+1}".center(8), end="")
             for day in self.days:
 
                 hour_content = self.days[day][hour]
                 if hour_content is not None:
                     hour_info = hour_content.get_schedule_representation()
                 else:
-                    hour_info = ''
+                    hour_info = ""
 
-                print(
-                    '|' + f'{hour_info}'.center(justify_length-2) + '|', end='')
+                print("|" + f"{hour_info}".center(justify_length - 2) + "|", end="")
             print()
 
         # Lineas separadoras verticales
-        print('-'*8, end='')
+        print("-" * 8, end="")
 
         for day in self.days:
-            print('-'*justify_length, end='')
-        print('\n')
+            print("-" * justify_length, end="")
+        print("\n")
