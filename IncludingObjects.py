@@ -1,5 +1,5 @@
 import copy
-from AcademicObjects import Subject
+from AcademicObjects import Group, Subject
 from AppUtils import Logger
 
 
@@ -203,9 +203,49 @@ class Schedule:
                 print("|" + f"{hour_info}".center(justify_length - 2) + "|", end="")
             print()
 
-        # Lineas separadoras verticales
+        # Lineas separadoras horizontales
         print("-" * 8, end="")
 
         for day in self.days:
             print("-" * justify_length, end="")
         print("\n")
+
+    def print_subject_list(self):
+        justify_length = 13
+        hlength = (justify_length-2)*9 + 8
+
+        gc_length = justify_length - 1
+        sc_length = justify_length
+        sn_length = (justify_length-2)*3
+        gt_length = (justify_length-2)*4
+
+        column_names = [
+            'Grupo',
+            'Codigo',
+            'Nombre',
+            'Profesor',
+        ]
+
+        print("-" * hlength)
+
+        print('|' + column_names[0].center(gc_length), end='')
+        print('|' + column_names[1].center(sc_length), end='')
+        print('|' + column_names[2].center(sn_length), end='')
+        print('|' + column_names[3].center(gt_length) + '|')
+
+        print("-" * hlength)
+
+        # Lista de asignaturas
+        for group_code in self.groups:
+            subject: Subject = self.subjects[group_code]
+            group: Group = self.groups[group_code]
+
+            gc = f"{group.code}".center(gc_length)
+            sc = f"{subject.code}".center(sc_length)
+            sn = f"{subject.name}".center(sn_length)
+            gt = f"{group.teachers[0]}".center(gt_length)
+
+            print("|" + gc + "|" + sc + '|' + sn + '|' + gt + '|')
+        
+        print("-" * hlength)
+

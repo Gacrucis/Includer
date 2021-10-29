@@ -30,6 +30,7 @@ class Subject:
     def get_subjectHTML(self):
 
         br = Browser()
+        br.set_handle_robots(False)
         br.open(
             "https://www.uis.edu.co/estudiantes/asignaturas_programadas/buscador.html"
         )
