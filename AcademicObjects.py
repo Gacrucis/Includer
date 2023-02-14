@@ -3,7 +3,7 @@ import urllib.request as ulib
 from mechanize import Browser
 import bs4 as bs
 from AppUtils import *
-from CustomExceptions import InvalidSubjectCode
+# from CustomExceptions import Exception
 
 
 class Subject:
@@ -35,6 +35,7 @@ class Subject:
             "https://www.uis.edu.co/estudiantes/asignaturas_programadas/buscador.html"
         )
         br.select_form(name="form1")  # pylint: disable=no-member
+        
         br.form["codigo"] = self.code  # pylint: disable=no-member
         br.submit()  # pylint: disable=no-member
 
@@ -48,7 +49,7 @@ class Subject:
         # servidor sera menor a 60 lineas de HTML
         if len(html) < 60:
             Logger.log_error(f"Asignatura {self.code} no detectada")
-            raise InvalidSubjectCode()
+            raise Exception()
 
         return html
 

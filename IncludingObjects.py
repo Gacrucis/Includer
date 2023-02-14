@@ -211,7 +211,7 @@ class Schedule:
         print("\n")
 
     def print_subject_list(self):
-        justify_length = 13
+        justify_length = 20
         hlength = (justify_length-2)*9 + 8
 
         gc_length = justify_length - 1
@@ -220,10 +220,10 @@ class Schedule:
         gt_length = (justify_length-2)*4
 
         column_names = [
-            'Grupo',
-            'Codigo',
-            'Nombre',
-            'Profesor',
+            'GRUPO',
+            'CODIGO',
+            'NOMBRE',
+            'PROFESOR',
         ]
 
         print("-" * hlength)
@@ -243,7 +243,9 @@ class Schedule:
             gc = f"{group.code}".center(gc_length)
             sc = f"{subject.code}".center(sc_length)
             sn = f"{subject.name}".center(sn_length)
-            gt = f"{group.teachers[0]}".center(gt_length)
+
+            teacher = group.teachers[0] if group.teachers else '---'
+            gt = f"{teacher}".center(gt_length)
 
             print("|" + gc + "|" + sc + '|' + sn + '|' + gt + '|')
         
